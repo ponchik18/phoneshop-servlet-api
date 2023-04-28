@@ -21,6 +21,10 @@ public class ProductListPageServlet extends HttpServlet {
         productDao = new ArrayListProductDao();
     }
 
+    public void setProductDao(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("products", productDao.findProducts());
