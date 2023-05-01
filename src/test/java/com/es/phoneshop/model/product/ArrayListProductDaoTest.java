@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -21,49 +24,75 @@ public class ArrayListProductDaoTest
     }
 
     @Test
+    public void testGetProduct(){
+        assertNotNull(productDao.getProduct(1L));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFindProductsNotHaveNullPrices() throws NullPointerException{
+        Product product = new Product("sfold", "Samsung Galaxy Fold", null, Currency.getInstance("USD"), 100, "urlForImage");
+        productDao.save(product);
+
+        List<Product> productList = productDao.findProducts();
+        Optional<Product> anyNullPricesProduct = productList.stream()
+                .filter(prod->Objects.isNull(prod.getPrice()))
+                .findAny();
+
+        assertTrue(anyNullPricesProduct.isEmpty());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFindProductsNotHaveNegativeStocks() throws NullPointerException{
+        Product product = new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), -100, "urlForImage");
+        productDao.save(product);
+
+        List<Product> productList = productDao.findProducts();
+        Optional<Product> anyNegativeStockProduct = productList.stream()
+                .filter(prod->prod.getStock()<=0)
+                .findAny();
+
+
+        assertTrue(anyNegativeStockProduct.isEmpty());
+    }
+
+    @Test
     public void testFindProductsNoResults() {
         assertFalse(productDao.findProducts().isEmpty());
     }
 
     @Test
-    public void testSaveProductById(){
+    public void testSaveProductById() throws ProductNotFoundException{
         Product product = new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage");
+
         productDao.save(product);
-        Long id = product.getId();
-        try {
-            Product searchProduct = productDao.getProduct(id);
-            assertEquals(product, searchProduct);
-        } catch (ProductNotFoundException e) {
-            fail();
-        }
+        Product searchProduct = productDao.getProduct(product.getId());
+
+        assertEquals(product, searchProduct);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testNullAdd(){
+    public void testNullAdd() throws NullPointerException{
         productDao.save(null);
     }
 
-    @Test
-    public void testDeleteProduct(){
-        Product product = new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage");
-        productDao.save(product);
+    @Test(expected = ProductNotFoundException.class)
+    public void testDeleteProduct() throws ProductNotFoundException{
+        Product product = productDao.getProduct(1L);
         Long id = product.getId();
+
         productDao.delete(id);
-        try{
-            productDao.getProduct(id);
-            fail();
-        } catch (ProductNotFoundException e) {
-            assertTrue(true);
-        }
+
+        productDao.getProduct(id);
     }
 
 
 
     @Test
     public void testConcurrentSave() throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        final int numThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
         int initialSize = productDao.findProducts().size();
-        int numThreads = 10;
+
         for (int i = 0; i < numThreads; i++) {
             executorService.execute(() -> {
                 Product product = createSampleProduct();
@@ -72,6 +101,7 @@ public class ArrayListProductDaoTest
         }
         executorService.shutdown();
         executorService.awaitTermination(5, TimeUnit.SECONDS);
+
         assertEquals(numThreads+initialSize, productDao.findProducts().size());
     }
 
