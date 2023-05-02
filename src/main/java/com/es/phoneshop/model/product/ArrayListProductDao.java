@@ -32,10 +32,14 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> findProducts() {
+    public List<Product> findProducts(String search) {
         lock.readLock().lock();
         try {
+            String[] queryElement = search.trim().split(" ");
+
             return products.stream()
+                    .filter(product -> Objects.isNull(search) || search.isEmpty() || isContainAnyWorld(product.getDescription(), queryElement))
+                    .sorted((prod1, prod2)-> getAnInt(queryElement, prod1, prod2))
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
                     .collect(Collectors.toList());
@@ -45,8 +49,13 @@ public class ArrayListProductDao implements ProductDao {
         }
     }
 
+    private int getAnInt(String[] queryElement, Product prod1, Product prod2) {
+        return countOfMatch(prod2.getDescription(), queryElement) - countOfMatch(prod1.getDescription(), queryElement);
+    }
+
     @Override
-    public void save(Product product) throws NullPointerException{
+    public void save(Product product){
+        Objects.requireNonNull(product, "We can't add null!");
         lock.writeLock().lock();
         try {
             product.setId(++maxId);
@@ -61,14 +70,14 @@ public class ArrayListProductDao implements ProductDao {
     public void delete(Long id){
         lock.writeLock().lock();
         try {
-            Iterator<Product> prodIt = products.iterator();
-            while (prodIt.hasNext()){
-                Product product = prodIt.next();
-                if(id.equals(product.getId())){
-                    prodIt.remove();
-                    break;
-                }
-            }
+            Product delProduct = products
+                    .stream()
+                    .filter(product -> id.equals(product.getId()))
+                    .findAny()
+                    .orElseThrow(ProductNotFoundException::new);
+
+            products.remove(delProduct);
+
         }
         finally {
             lock.writeLock().unlock();
@@ -90,6 +99,23 @@ public class ArrayListProductDao implements ProductDao {
         save(new Product( "simc56", "Siemens C56", new BigDecimal(70), usd, 20, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20C56.jpg"));
         save(new Product( "simc61", "Siemens C61", new BigDecimal(80), usd, 30, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20C61.jpg"));
         save(new Product( "simsxg75", "Siemens SXG75", new BigDecimal(150), usd, 40, "https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/manufacturer/Siemens/Siemens%20SXG75.jpg"));
+    }
+
+    private boolean isContainAnyWorld(String prodDescription, String[] queryElements){
+        for(String element: queryElements){
+            if(prodDescription.contains(element))
+                return true;
+        }
+        return false;
+    }
+
+    private int countOfMatch(String prodDescription, String[] queryElements){
+        int count=0;
+        for(String element: queryElements){
+            if(prodDescription.contains(element))
+                count++;
+        }
+        return count;
     }
 
 }

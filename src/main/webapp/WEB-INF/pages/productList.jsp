@@ -8,11 +8,16 @@
   <p>
     Welcome to Expert-Soft training!
   </p>
+  <form>
+    <input type="text" name="search" value="${param.search}">
+    <button type="submit">Search</button>
+    <p>Count of product: ${products.size()}<p>
+  </form>
   <table>
     <thead>
       <tr>
         <td>Image</td>
-        <td>Description</td>
+        <td>Description<a href="?">&uArr;</a><a href="?sortOrder=">&uArr;</a></td>
         <td class="price">Price</td>
       </tr>
     </thead>
