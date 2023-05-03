@@ -17,5 +17,8 @@
   <main>
     <jsp:doBody/>
   </main>
+  <p>
+    (c) PhoneShop
+  </p>
 </body>
 </html>

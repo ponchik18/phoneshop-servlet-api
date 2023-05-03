@@ -31,7 +31,7 @@
         <td>
           <img class="product-tile" src="${product.imageUrl}">
         </td>
-        <td>${product.description}</td>
+        <td><a href="${pageContext.request.contextPath}/products/${product.id}">${product.description}</a></td>
         <td class="price">
           <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="${product.currency.symbol}"/>
         </td>

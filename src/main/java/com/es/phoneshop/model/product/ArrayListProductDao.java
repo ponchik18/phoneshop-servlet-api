@@ -36,7 +36,7 @@ public class ArrayListProductDao implements ProductDao {
             return products.stream()
                     .filter(product -> id.equals(product.getId()))
                     .findAny()
-                    .orElseThrow(ProductNotFoundException::new);
+                    .orElseThrow(()->new ProductNotFoundException(id));
         }
         finally {
             lock.readLock().unlock();
@@ -87,7 +87,7 @@ public class ArrayListProductDao implements ProductDao {
                     .stream()
                     .filter(product -> id.equals(product.getId()))
                     .findAny()
-                    .orElseThrow(ProductNotFoundException::new);
+                    .orElseThrow(()->new ProductNotFoundException(id));
 
             products.remove(delProduct);
 
