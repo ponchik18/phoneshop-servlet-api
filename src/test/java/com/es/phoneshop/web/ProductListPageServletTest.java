@@ -50,7 +50,7 @@ public class ProductListPageServletTest {
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
         products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage"));
         products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage"));
-        when(productDao.findProducts(request.getParameter("search"))).thenReturn(products);
+        when(productDao.findProducts(request.getParameter("search"), null, null)).thenReturn(products);
     }
 
     @Test

@@ -32,16 +32,17 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> findProducts(String search) {
+    public List<Product> findProducts(String search, SortField field, SortOrder order) {
         lock.readLock().lock();
         try {
-            String[] queryElement = search.trim().split(" ");
-
+            String[] queryElement = Optional.ofNullable(search).orElse("").trim().split(" ");
+            Comparator<Product> comparator = createComparator(field, order);
             return products.stream()
                     .filter(product -> Objects.isNull(search) || search.isEmpty() || isContainAnyWorld(product.getDescription(), queryElement))
                     .sorted((prod1, prod2)-> getAnInt(queryElement, prod1, prod2))
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
+                    .sorted(comparator)
                     .collect(Collectors.toList());
         }
         finally {
@@ -116,6 +117,21 @@ public class ArrayListProductDao implements ProductDao {
                 count++;
         }
         return count;
+    }
+
+    private Comparator<Product> createComparator(SortField field, SortOrder order){
+        Comparator<Product> comparator;
+        if(SortField.description==field)
+            comparator = Comparator.comparing(Product::getDescription);
+        else if(SortField.price == field)
+            comparator =  Comparator.comparing(Product::getPrice);
+        else{
+            comparator = (Product o1, Product o2)-> 0;
+        }
+        if(SortOrder.desc  == order)
+            comparator = comparator.reversed();
+        return comparator;
+
     }
 
 }

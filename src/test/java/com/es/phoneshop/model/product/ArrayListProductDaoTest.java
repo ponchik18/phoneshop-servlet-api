@@ -22,9 +22,9 @@ public class ArrayListProductDaoTest
     @Before
     public void setup() {
         orderProduct=new ArrayList<>();
-        orderProduct.add(new Product("iphone14max", "abc qwe zxc rty", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage"));
-        orderProduct.add(new Product("iPhone13max", "abc qwe rty", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage"));
-        orderProduct.add(new Product("imac", "abc qwe", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage"));
+        orderProduct.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage"));
+        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage"));
+        orderProduct.add(new Product("iphone14", "Apple iPhone 13 64gb ", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage"));
 
         products= new ArrayList<>();
         products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage"));
@@ -36,7 +36,7 @@ public class ArrayListProductDaoTest
 
     @Test
     public void testGetProduct(){
-        Product product = productDao.findProducts("").stream().findAny().get();
+        Product product = productDao.findProducts("", null, null).stream().findAny().get();
 
         Product searchProduct = productDao.getProduct(product.getId());
 
@@ -49,7 +49,7 @@ public class ArrayListProductDaoTest
         String descriptionSearch = product.getDescription().split(" ")[0];
         productDao.save(product);
 
-        List<Product> foundedProducts = productDao.findProducts(descriptionSearch);
+        List<Product> foundedProducts = productDao.findProducts(descriptionSearch, null, null);
 
         assertTrue(foundedProducts.contains(product));
 
@@ -61,7 +61,7 @@ public class ArrayListProductDaoTest
         String descriptionSearch = product.getDescription().split(" ")[0];
         productDao.save(product);
 
-        List<Product> foundedProducts = productDao.findProducts("Apple");
+        List<Product> foundedProducts = productDao.findProducts("Apple", null, null);
 
         assertFalse(foundedProducts.contains(product));
 
@@ -74,7 +74,7 @@ public class ArrayListProductDaoTest
         }
         String query = orderProduct.get(0).getDescription();
 
-        List<Product> foundedProduct = productDao.findProducts(query).subList(0,orderProduct.size());
+        List<Product> foundedProduct = productDao.findProducts(query, null, null).subList(0,orderProduct.size());
 
         assertEquals(orderProduct, foundedProduct);
 
@@ -87,7 +87,7 @@ public class ArrayListProductDaoTest
         Product product = products.get(1);
         productDao.save(product);
 
-        List<Product> productList = productDao.findProducts("");
+        List<Product> productList = productDao.findProducts("", null, null);
         Optional<Product> anyNullPricesProduct = productList.stream()
                 .filter(prod->Objects.isNull(prod.getPrice()))
                 .findAny();
@@ -100,7 +100,7 @@ public class ArrayListProductDaoTest
         Product product = products.get(2);
         productDao.save(product);
 
-        List<Product> productList = productDao.findProducts("");
+        List<Product> productList = productDao.findProducts("", null, null);
         Optional<Product> anyNegativeStockProduct = productList.stream()
                 .filter(prod->prod.getStock()<=0)
                 .findAny();
@@ -111,7 +111,7 @@ public class ArrayListProductDaoTest
 
     @Test
     public void testFindProductsNoResults() {
-        assertFalse(productDao.findProducts("").isEmpty());
+        assertFalse(productDao.findProducts("", null, null).isEmpty());
     }
 
     @Test
@@ -131,12 +131,36 @@ public class ArrayListProductDaoTest
 
     @Test(expected = ProductNotFoundException.class)
     public void testDeleteProduct() throws ProductNotFoundException{
-        Product product = productDao.findProducts("").stream().findAny().get();
+        Product product = productDao.findProducts("", null, null).stream().findAny().get();
         Long id = product.getId();
 
         productDao.delete(id);
 
         productDao.getProduct(id);
+    }
+
+    @Test
+    public void testSortAscFindProducts(){
+        List<Product> sortProduct = productDao.findProducts("", null, null);
+        sortProduct.sort(Comparator.comparing(Product::getPrice));
+        SortField field = SortField.price;
+        SortOrder order = SortOrder.asc;
+
+        List<Product> compareList = productDao.findProducts("", field, order);
+
+        assertEquals(sortProduct, compareList);
+    }
+
+    @Test
+    public void testSortDescFindProducts(){
+        List<Product> sortProduct = productDao.findProducts("", null, null);
+        sortProduct.sort(Comparator.comparing(Product::getDescription, Comparator.reverseOrder()));
+        SortField field = SortField.description;
+        SortOrder order = SortOrder.desc;
+
+        List<Product> compareList = productDao.findProducts("", field, order);
+
+        assertEquals(sortProduct, compareList);
     }
 
 
@@ -145,7 +169,7 @@ public class ArrayListProductDaoTest
     public void testConcurrentSave() throws InterruptedException {
         final int numThreads = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-        int initialSize = productDao.findProducts("").size();
+        int initialSize = productDao.findProducts("", null, null).size();
 
         for (int i = 0; i < numThreads; i++) {
             executorService.execute(() -> {
@@ -156,9 +180,7 @@ public class ArrayListProductDaoTest
         executorService.shutdown();
         executorService.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertEquals(numThreads+initialSize, productDao.findProducts("").size());
+        assertEquals(numThreads+initialSize, productDao.findProducts("", null, null).size());
     }
-
-
 
 }
