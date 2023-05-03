@@ -1,9 +1,7 @@
 package com.es.phoneshop.model.product;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -40,8 +38,7 @@ public class ArrayListProductDao implements ProductDao {
             return products.stream()
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
-                    .collect(Collectors
-                            .toCollection(ArrayList::new));
+                    .collect(Collectors.toList());
         }
         finally {
             lock.readLock().unlock();
@@ -49,10 +46,8 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public void save(Product product) throws NullPointerException{
-
-        if(product == null)
-            throw new NullPointerException();
+    public void save(Product product){
+        Objects.requireNonNull(product, "We can't add null!");
         lock.writeLock().lock();
         try {
             product.setId(++maxId);
@@ -67,10 +62,14 @@ public class ArrayListProductDao implements ProductDao {
     public void delete(Long id){
         lock.writeLock().lock();
         try {
-            products = products.stream()
-                    .filter(product -> !id.equals(product.getId()))
-                    .collect(Collectors.
-                            toCollection(ArrayList::new));
+            Product delProduct = products
+                    .stream()
+                    .filter(product -> id.equals(product.getId()))
+                    .findAny()
+                    .orElseThrow(ProductNotFoundException::new);
+
+            products.remove(delProduct);
+
         }
         finally {
             lock.writeLock().unlock();
