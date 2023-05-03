@@ -31,7 +31,7 @@ public class ArrayListProductDaoTest
         products.add(new Product("wphone", "Windows Phone", null, Currency.getInstance("USD"), 100, "urlForImage"));
         products.add(new Product("redminote5", "Xiaomi Redmi Note5", new BigDecimal(65), Currency.getInstance("USD"), 0, "urlForImage"));
 
-        productDao = new ArrayListProductDao();
+        productDao = ArrayListProductDao.getInstance();
     }
 
     @Test
@@ -131,7 +131,8 @@ public class ArrayListProductDaoTest
 
     @Test(expected = ProductNotFoundException.class)
     public void testDeleteProduct() throws ProductNotFoundException{
-        Product product = productDao.findProducts("", null, null).stream().findAny().get();
+        Product product = products.get(0);
+        productDao.save(product);
         Long id = product.getId();
 
         productDao.delete(id);
