@@ -46,11 +46,12 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public void save(Product product) throws NullPointerException{
+    public void save(Product product){
+        Objects.requireNonNull(product, "We can't add null!");
         lock.writeLock().lock();
         try {
             product.setId(++maxId);
-            products.add(Objects.requireNonNull(product));
+            products.add(product);
         }
         finally {
             lock.writeLock().unlock();
@@ -61,14 +62,14 @@ public class ArrayListProductDao implements ProductDao {
     public void delete(Long id){
         lock.writeLock().lock();
         try {
-            Iterator<Product> prodIt = products.iterator();
-            while (prodIt.hasNext()){
-                Product product = prodIt.next();
-                if(id.equals(product.getId())){
-                    prodIt.remove();
-                    break;
-                }
-            }
+            Product delProduct = products
+                    .stream()
+                    .filter(product -> id.equals(product.getId()))
+                    .findAny()
+                    .orElseThrow(ProductNotFoundException::new);
+
+            products.remove(delProduct);
+
         }
         finally {
             lock.writeLock().unlock();

@@ -25,11 +25,15 @@ public class ArrayListProductDaoTest
 
     @Test
     public void testGetProduct(){
-        assertNotNull(productDao.getProduct(1L));
+        Product product = productDao.findProducts().stream().findAny().get();
+
+        Product searchProduct = productDao.getProduct(product.getId());
+
+        assertEquals(product, searchProduct);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testFindProductsNotHaveNullPrices() throws NullPointerException{
+    @Test
+    public void testFindProductsNotHaveNullPrices(){
         Product product = new Product("sfold", "Samsung Galaxy Fold", null, Currency.getInstance("USD"), 100, "urlForImage");
         productDao.save(product);
 
@@ -41,8 +45,8 @@ public class ArrayListProductDaoTest
         assertTrue(anyNullPricesProduct.isEmpty());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testFindProductsNotHaveNegativeStocks() throws NullPointerException{
+    @Test
+    public void testFindProductsNotHaveNegativeStocks(){
         Product product = new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), -100, "urlForImage");
         productDao.save(product);
 
@@ -77,7 +81,7 @@ public class ArrayListProductDaoTest
 
     @Test(expected = ProductNotFoundException.class)
     public void testDeleteProduct() throws ProductNotFoundException{
-        Product product = productDao.getProduct(1L);
+        Product product = productDao.findProducts().stream().findAny().get();
         Long id = product.getId();
 
         productDao.delete(id);
