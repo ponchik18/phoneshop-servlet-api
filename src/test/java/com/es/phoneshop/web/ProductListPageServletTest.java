@@ -48,8 +48,8 @@ public class ProductListPageServletTest {
         servlet.init(config);
         servlet.setProductDao(productDao);
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage"));
-        products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage"));
+        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage", null));
+        products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage", null));
         when(productDao.findProducts(request.getParameter("search"), null, null)).thenReturn(products);
     }
 

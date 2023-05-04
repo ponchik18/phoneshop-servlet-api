@@ -22,14 +22,14 @@ public class ArrayListProductDaoTest
     @Before
     public void setup() {
         orderProduct=new ArrayList<>();
-        orderProduct.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage"));
-        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage"));
-        orderProduct.add(new Product("iphone14", "Apple iPhone 13 64gb ", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage"));
+        orderProduct.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage", null));
+        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage",null));
+        orderProduct.add(new Product("iphone14", "Apple iPhone 13 64gb ", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage", null));
 
         products= new ArrayList<>();
-        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage"));
-        products.add(new Product("wphone", "Windows Phone", null, Currency.getInstance("USD"), 100, "urlForImage"));
-        products.add(new Product("redminote5", "Xiaomi Redmi Note5", new BigDecimal(65), Currency.getInstance("USD"), 0, "urlForImage"));
+        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage", null));
+        products.add(new Product("wphone", "Windows Phone", null, Currency.getInstance("USD"), 100, "urlForImage", null));
+        products.add(new Product("redminote5", "Xiaomi Redmi Note5", new BigDecimal(65), Currency.getInstance("USD"), 0, "urlForImage", null));
 
         productDao = ArrayListProductDao.getInstance();
     }

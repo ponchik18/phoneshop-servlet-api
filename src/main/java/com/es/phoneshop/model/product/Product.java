@@ -1,8 +1,9 @@
 package com.es.phoneshop.model.product;
 
 import java.math.BigDecimal;
-import java.util.Currency;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 
 public class Product {
     private Long id;
@@ -15,16 +16,23 @@ public class Product {
     private int stock;
     private String imageUrl;
 
+    private Map<Date, BigDecimal> pricesHistory = new TreeMap<>();
+
+    public Map<Date, BigDecimal> getPricesHistory() {
+        return pricesHistory;
+    }
+
     public Product() {
     }
 
-    public Product( String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl) {
+    public Product( String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl, Map<Date, BigDecimal> pricesHistory) {
         this.code = code;
         this.description = description;
-        this.price = price;
+        setPrice(price);
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.pricesHistory=Objects.isNull(pricesHistory)? new TreeMap<>():pricesHistory;
     }
 
     public Long getId() {
@@ -56,6 +64,7 @@ public class Product {
     }
 
     public void setPrice(BigDecimal price) {
+        pricesHistory.put(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()), price);
         this.price = price;
     }
 
@@ -81,6 +90,10 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setPricesHistory(Map<Date, BigDecimal> pricesHistory) {
+        this.pricesHistory = pricesHistory;
     }
 
     @Override
