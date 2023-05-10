@@ -1,6 +1,5 @@
 package com.es.phoneshop.model.product;
 
-import org.codehaus.plexus.util.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,21 +11,19 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-public class ArrayListProductDaoTest
-{
+public class ArrayListProductDaoTest {
     private ProductDao productDao;
     private ArrayList<Product> products;
-
     private ArrayList<Product> orderProduct;
 
     @Before
     public void setup() {
-        orderProduct=new ArrayList<>();
+        orderProduct = new ArrayList<>();
         orderProduct.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage", null));
-        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage",null));
+        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage", null));
         orderProduct.add(new Product("iphone14", "Apple iPhone 13 64gb ", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage", null));
 
-        products= new ArrayList<>();
+        products = new ArrayList<>();
         products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage", null));
         products.add(new Product("wphone", "Windows Phone", null, Currency.getInstance("USD"), 100, "urlForImage", null));
         products.add(new Product("redminote5", "Xiaomi Redmi Note5", new BigDecimal(65), Currency.getInstance("USD"), 0, "urlForImage", null));
@@ -35,7 +32,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testGetProduct(){
+    public void testGetProduct() {
         Product product = productDao.findProducts("", null, null).stream().findAny().get();
 
         Product searchProduct = productDao.getProduct(product.getId());
@@ -44,7 +41,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testFindSamsungProduct(){
+    public void testFindSamsungProduct() {
         Product product = products.get(0);
         String descriptionSearch = product.getDescription().split(" ")[0];
         productDao.save(product);
@@ -56,7 +53,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testNotFindSamsungProduct(){
+    public void testNotFindSamsungProduct() {
         Product product = products.get(0);
         String descriptionSearch = product.getDescription().split(" ")[0];
         productDao.save(product);
@@ -68,42 +65,37 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testFindProductOrder(){
-        for(int i=orderProduct.size()-1; i>=0; i--){
+    public void testFindProductOrder() {
+        for (int i = orderProduct.size() - 1; i >= 0; i--) {
             productDao.save(orderProduct.get(i));
         }
         String query = orderProduct.get(0).getDescription();
 
-        List<Product> foundedProduct = productDao.findProducts(query, null, null).subList(0,orderProduct.size());
+        List<Product> foundedProduct = productDao.findProducts(query, null, null).subList(0, orderProduct.size());
 
         assertEquals(orderProduct, foundedProduct);
 
     }
 
 
-
     @Test
-    public void testFindProductsHaveNullPrices() throws NullPointerException{
-        Product product = products.get(1);
-        productDao.save(product);
+    public void testFindProductsHaveNullPrices() throws NullPointerException {
+        Product testProduct = products.get(1);
+        productDao.save(testProduct);
 
         List<Product> productList = productDao.findProducts("", null, null);
-        Optional<Product> anyNullPricesProduct = productList.stream()
-                .filter(prod->Objects.isNull(prod.getPrice()))
-                .findAny();
+        Optional<Product> anyNullPricesProduct = productList.stream().filter(product -> Objects.isNull(product.getPrice())).findAny();
 
         assertTrue(anyNullPricesProduct.isEmpty());
     }
 
     @Test
-    public void testFindProductsHaveNegativeStocks() throws NullPointerException{
-        Product product = products.get(2);
-        productDao.save(product);
+    public void testFindProductsHaveNegativeStocks() throws NullPointerException {
+        Product testProduct = products.get(2);
+        productDao.save(testProduct);
 
         List<Product> productList = productDao.findProducts("", null, null);
-        Optional<Product> anyNegativeStockProduct = productList.stream()
-                .filter(prod->prod.getStock()<=0)
-                .findAny();
+        Optional<Product> anyNegativeStockProduct = productList.stream().filter(product -> product.getStock() <= 0).findAny();
 
 
         assertTrue(anyNegativeStockProduct.isEmpty());
@@ -115,7 +107,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testSaveProductById() throws ProductNotFoundException{
+    public void testSaveProductById() throws ProductNotFoundException {
         Product product = products.get(0);
 
         productDao.save(product);
@@ -125,12 +117,12 @@ public class ArrayListProductDaoTest
     }
 
     @Test(expected = NullPointerException.class)
-    public void testNullAdd() throws NullPointerException{
+    public void testNullAdd() throws NullPointerException {
         productDao.save(null);
     }
 
     @Test(expected = ProductNotFoundException.class)
-    public void testDeleteProduct() throws ProductNotFoundException{
+    public void testDeleteProduct() {
         Product product = products.get(0);
         productDao.save(product);
         Long id = product.getId();
@@ -141,7 +133,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testSortAscFindProducts(){
+    public void testSortAscFindProducts() {
         List<Product> sortProduct = productDao.findProducts("", null, null);
         sortProduct.sort(Comparator.comparing(Product::getPrice));
         SortField field = SortField.price;
@@ -153,7 +145,7 @@ public class ArrayListProductDaoTest
     }
 
     @Test
-    public void testSortDescFindProducts(){
+    public void testSortDescFindProducts() {
         List<Product> sortProduct = productDao.findProducts("", null, null);
         sortProduct.sort(Comparator.comparing(Product::getDescription, Comparator.reverseOrder()));
         SortField field = SortField.description;
@@ -163,7 +155,6 @@ public class ArrayListProductDaoTest
 
         assertEquals(sortProduct, compareList);
     }
-
 
 
     @Test
@@ -181,7 +172,7 @@ public class ArrayListProductDaoTest
         executorService.shutdown();
         executorService.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertEquals(numThreads+initialSize, productDao.findProducts("", null, null).size());
+        assertEquals(numThreads + initialSize, productDao.findProducts("", null, null).size());
     }
 
 }

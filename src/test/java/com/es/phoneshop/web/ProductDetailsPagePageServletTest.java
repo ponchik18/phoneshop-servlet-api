@@ -14,9 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductDetailsPagePageServletTest {
+
+    private static final Long productId = 1L;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -49,10 +48,8 @@ public class ProductDetailsPagePageServletTest {
 
     @Test
     public void testDoGet() throws ServletException, IOException {
-        Long productId = 1L;
         Product product = new Product();
-        product.setId(productId);
-        when(request.getPathInfo()).thenReturn("/1");
+        when(request.getPathInfo()).thenReturn("/" + productId);
         when(productDao.getProduct(productId)).thenReturn(product);
 
         servlet.doGet(request, response);

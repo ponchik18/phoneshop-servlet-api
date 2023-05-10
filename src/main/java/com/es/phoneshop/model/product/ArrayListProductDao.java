@@ -1,6 +1,7 @@
 package com.es.phoneshop.model.product;
 
-import java.math.BigDecimal;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -8,16 +9,16 @@ import java.util.stream.Collectors;
 
 public class ArrayListProductDao implements ProductDao {
 
-    private static ArrayListProductDao instance ;
+    private volatile static ArrayListProductDao instance;
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private List<Product> products;
+    private final List<Product> products;
     private Long maxId = 0L;
 
-    public static ArrayListProductDao getInstance(){
-        if(instance ==null){
-            synchronized (ArrayListProductDao.class){
-                if(instance == null){
+    public static ArrayListProductDao getInstance() {
+        if (instance == null) {
+            synchronized (ArrayListProductDao.class) {
+                if (instance == null) {
                     instance = new ArrayListProductDao();
                 }
             }
@@ -30,15 +31,14 @@ public class ArrayListProductDao implements ProductDao {
     }
 
     @Override
-    public Product getProduct(Long id) throws ProductNotFoundException{
+    public Product getProduct(Long id) throws ProductNotFoundException {
         lock.readLock().lock();
-        try{
+        try {
             return products.stream()
                     .filter(product -> id.equals(product.getId()))
                     .findAny()
-                    .orElseThrow(()->new ProductNotFoundException(id));
-        }
-        finally {
+                    .orElseThrow(() -> new ProductNotFoundException(id));
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -47,83 +47,65 @@ public class ArrayListProductDao implements ProductDao {
     public List<Product> findProducts(String search, SortField field, SortOrder order) {
         lock.readLock().lock();
         try {
-            String[] queryElement = Optional.ofNullable(search).orElse("").trim().split(" ");
-            Comparator<Product> comparator = createComparator(field, order);
+
+            String[] searchWords = Optional.ofNullable(search).orElse(StringUtils.EMPTY).trim().split(" ");
+            Comparator<Product> comparator = createComparator(field, order, searchWords);
             return products.stream()
-                    .filter(product -> Objects.isNull(search) || search.isEmpty() || isContainAnyWorld(product.getDescription(), queryElement))
-                    .sorted((prod1, prod2)-> getAnInt(queryElement, prod1, prod2))
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
+                    .filter(product -> Objects.isNull(search) || search.isEmpty() || isContainAnyWorld(product.getDescription(), searchWords))
                     .sorted(comparator)
                     .collect(Collectors.toList());
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
 
-    private int getAnInt(String[] queryElement, Product prod1, Product prod2) {
-        return countOfMatch(prod2.getDescription(), queryElement) - countOfMatch(prod1.getDescription(), queryElement);
-    }
-
     @Override
-    public void save(Product product){
+    public void save(Product product) {
         Objects.requireNonNull(product, "We can't add null!");
         lock.writeLock().lock();
         try {
             product.setId(++maxId);
             products.add(Objects.requireNonNull(product));
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
 
     @Override
-    public void delete(Long id){
+    public void delete(Long id) {
         lock.writeLock().lock();
         try {
-            Product delProduct = products
-                    .stream()
+            products.stream()
                     .filter(product -> id.equals(product.getId()))
                     .findAny()
-                    .orElseThrow(()->new ProductNotFoundException(id));
-
-            products.remove(delProduct);
-
-        }
-        finally {
+                    .ifPresent(products::remove);
+        } finally {
             lock.writeLock().unlock();
         }
     }
 
-    private boolean isContainAnyWorld(String prodDescription, String[] queryElements){
-        for(String element: queryElements){
-            if(prodDescription.contains(element))
-                return true;
-        }
-        return false;
+    private boolean isContainAnyWorld(String productDescription, String[] searchWords) {
+        return Arrays.stream(searchWords)
+                .anyMatch(productDescription::contains);
     }
 
-    private int countOfMatch(String prodDescription, String[] queryElements){
-        int count=0;
-        for(String element: queryElements){
-            if(prodDescription.contains(element))
-                count++;
-        }
-        return count;
+    private long countOfMatch(String productDescription, String[] searchWords) {
+        return Arrays.stream(searchWords)
+                .filter(productDescription::contains)
+                .count();
     }
 
-    private Comparator<Product> createComparator(SortField field, SortOrder order){
-        Comparator<Product> comparator;
-        if(SortField.description==field)
-            comparator = Comparator.comparing(Product::getDescription);
-        else if(SortField.price == field)
-            comparator =  Comparator.comparing(Product::getPrice);
-        else{
-            comparator = (Product o1, Product o2)-> 0;
-        }
-        if(SortOrder.desc  == order)
+    private Comparator<Product> createComparator(SortField field, SortOrder order, String[] searchWords) {
+        Comparator<Product> comparator = (Product o1, Product o2) -> (int) (countOfMatch(o1.getDescription(), searchWords)
+                - countOfMatch(o2.getDescription(), searchWords));
+        if (SortField.description == field)
+            comparator = comparator.thenComparing(Product::getDescription);
+        else if (SortField.price == field)
+            comparator = comparator.thenComparing(Product::getPrice);
+
+        if (SortOrder.desc == order)
             comparator = comparator.reversed();
         return comparator;
 

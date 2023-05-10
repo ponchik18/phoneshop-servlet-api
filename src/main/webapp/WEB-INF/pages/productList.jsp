@@ -38,14 +38,14 @@
             <div class="popup-content">
               <h2 style="text-align: center;">Price history</h2>
               <c:choose>
-                <c:when test="${product.pricesHistory.size()==0}">
+                <c:when test="${product.priceHistories.size()==0}">
                   <p>empty</p>
                   <br />
                 </c:when>
                 <c:otherwise>
-                  <c:forEach var="entry" items="${product.pricesHistory}">
-                    <fmt:formatDate value="${entry.key}" type="date" pattern="dd MMM yyyy"/>
-                    <fmt:formatNumber value="${entry.value}" type="currency" currencySymbol="${product.currency.symbol}"/>
+                  <c:forEach var="priceHistory" items="${product.priceHistories}">
+                    <fmt:formatDate value="${priceHistory.date}" type="date" pattern="dd MMM yyyy"/>
+                    <fmt:formatNumber value="${priceHistory.price}" type="currency" currencySymbol="${product.currency.symbol}"/>
                     <br />
                   </c:forEach>
                   <br />

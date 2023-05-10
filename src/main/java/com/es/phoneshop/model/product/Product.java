@@ -9,30 +9,34 @@ public class Product {
     private Long id;
     private String code;
     private String description;
-    /** null means there is no price because the product is outdated or new */
+    /**
+     * null means there is no price because the product is outdated or new
+     */
     private BigDecimal price;
-    /** can be null if the price is null */
+    /**
+     * can be null if the price is null
+     */
     private Currency currency;
     private int stock;
     private String imageUrl;
 
-    private Map<Date, BigDecimal> pricesHistory = new TreeMap<>();
+    private List<PriceHistory> priceHistories;
 
-    public Map<Date, BigDecimal> getPricesHistory() {
-        return pricesHistory;
+    public List<PriceHistory> getPriceHistories() {
+        return priceHistories;
     }
 
     public Product() {
     }
 
-    public Product( String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl, Map<Date, BigDecimal> pricesHistory) {
+    public Product(String code, String description, BigDecimal price, Currency currency, int stock, String imageUrl, List<PriceHistory> priceHistories) {
         this.code = code;
         this.description = description;
-        setPrice(price);
         this.currency = currency;
         this.stock = stock;
         this.imageUrl = imageUrl;
-        this.pricesHistory=Objects.isNull(pricesHistory)? new TreeMap<>():pricesHistory;
+        this.priceHistories = Objects.isNull(priceHistories) ? new ArrayList<>() : priceHistories;
+        setPrice(price);
     }
 
     public Long getId() {
@@ -64,7 +68,11 @@ public class Product {
     }
 
     public void setPrice(BigDecimal price) {
-        pricesHistory.put(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()), price);
+        priceHistories.add(new PriceHistory(Date.from(LocalDate
+                        .now()
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()), price));
+
         this.price = price;
     }
 
@@ -92,8 +100,8 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public void setPricesHistory(Map<Date, BigDecimal> pricesHistory) {
-        this.pricesHistory = pricesHistory;
+    public void setPricesHistory(List<PriceHistory> priceHistories) {
+        this.priceHistories = priceHistories;
     }
 
     @Override
