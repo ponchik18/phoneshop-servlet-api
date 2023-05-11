@@ -1,5 +1,10 @@
-package com.es.phoneshop.model.product;
+package com.es.phoneshop.dao.implementation;
 
+import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dto.SortField;
+import com.es.phoneshop.dto.SortOrder;
+import com.es.phoneshop.exception.ProductNotFoundException;
+import com.es.phoneshop.model.Product;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -15,6 +20,10 @@ public class ArrayListProductDao implements ProductDao {
     private final List<Product> products;
     private Long maxId = 0L;
 
+    private ArrayListProductDao() {
+        products = new ArrayList<>();
+    }
+
     public static ArrayListProductDao getInstance() {
         if (instance == null) {
             synchronized (ArrayListProductDao.class) {
@@ -24,10 +33,6 @@ public class ArrayListProductDao implements ProductDao {
             }
         }
         return instance;
-    }
-
-    private ArrayListProductDao() {
-        products = new ArrayList<>();
     }
 
     @Override
@@ -88,25 +93,30 @@ public class ArrayListProductDao implements ProductDao {
 
     private boolean isContainAnyWorld(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)
-                .anyMatch(productDescription::contains);
+                .anyMatch(str -> containIgnoreCase(productDescription, str));
     }
 
     private long countOfMatch(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)
-                .filter(productDescription::contains)
+                .filter(str -> containIgnoreCase(productDescription, str))
                 .count();
     }
 
-    private Comparator<Product> createComparator(SortField field, SortOrder order, String[] searchWords) {
-        Comparator<Product> comparator = (Product o1, Product o2) -> (int) (countOfMatch(o1.getDescription(), searchWords)
-                - countOfMatch(o2.getDescription(), searchWords));
-        if (SortField.description == field)
-            comparator = comparator.thenComparing(Product::getDescription);
-        else if (SortField.price == field)
-            comparator = comparator.thenComparing(Product::getPrice);
+    private boolean containIgnoreCase(String str, String searchStr) {
+        return str.toLowerCase().contains(searchStr.toLowerCase());
+    }
 
-        if (SortOrder.desc == order)
+    private Comparator<Product> createComparator(SortField field, SortOrder order, String[] searchWords) {
+        Comparator<Product> comparator = Comparator.comparing(p -> countOfMatch(p.getDescription(), searchWords));
+        comparator = comparator.reversed();
+        if (SortField.description == field) {
+            comparator = comparator.thenComparing(Product::getDescription);
+        } else if (SortField.price == field) {
+            comparator = comparator.thenComparing(Product::getPrice);
+        }
+        if (SortOrder.desc == order) {
             comparator = comparator.reversed();
+        }
         return comparator;
 
     }

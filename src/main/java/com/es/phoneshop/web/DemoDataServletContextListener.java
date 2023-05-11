@@ -1,16 +1,19 @@
 package com.es.phoneshop.web;
 
-import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.PriceHistory;
-import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.model.product.ProductDao;
+import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dao.implementation.ArrayListProductDao;
+import com.es.phoneshop.model.PriceHistory;
+import com.es.phoneshop.model.Product;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.Date;
+import java.util.List;
 
 public class DemoDataServletContextListener implements ServletContextListener {
 

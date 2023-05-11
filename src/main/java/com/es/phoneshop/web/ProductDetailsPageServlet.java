@@ -1,8 +1,7 @@
 package com.es.phoneshop.web;
 
-import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.ProductDao;
-
+import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dao.implementation.ArrayListProductDao;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -18,6 +17,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
     public void setProductDao(ProductDao productDao) {
         this.productDao = productDao;
     }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -26,9 +26,8 @@ public class ProductDetailsPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long idProd = Long.parseLong(request.getPathInfo().substring(1));
-        request.setAttribute("product", productDao.getProduct(idProd));
+        Long idProduct = Long.parseLong(request.getPathInfo().substring(1));
+        request.setAttribute("product", productDao.getProduct(idProduct));
         request.getRequestDispatcher("/WEB-INF/pages/productDetails.jsp").forward(request, response);
     }
-
 }

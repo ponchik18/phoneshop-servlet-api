@@ -1,7 +1,8 @@
 package com.es.phoneshop.web;
 
-import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.dao.implementation.ArrayListProductDao;
+import com.es.phoneshop.exception.ProductNotFoundException;
+import com.es.phoneshop.model.Product;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -22,22 +23,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductDetailsPagePageServletTest {
-
+    private static final Long invalidProductId = -45L;
     private static final Long productId = 1L;
+    private final ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
     @Mock
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
     @Mock
     private RequestDispatcher requestDispatcher;
-
     @Mock
     private ServletConfig config;
-
     @Mock
     private ArrayListProductDao productDao;
-
-    private ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
 
     @Before
     public void setup() throws ServletException {
@@ -47,7 +45,7 @@ public class ProductDetailsPagePageServletTest {
     }
 
     @Test
-    public void testDoGet() throws ServletException, IOException {
+    public void testDoGetValidProductNumber() throws ServletException, IOException {
         Product product = new Product();
         when(request.getPathInfo()).thenReturn("/" + productId);
         when(productDao.getProduct(productId)).thenReturn(product);
@@ -56,5 +54,13 @@ public class ProductDetailsPagePageServletTest {
 
         verify(requestDispatcher).forward(request, response);
         verify(request).setAttribute(eq("product"), eq(product));
+    }
+
+    @Test(expected = ProductNotFoundException.class)
+    public void testDoGetInvalidProductNumber() throws ServletException, IOException {
+        when(request.getPathInfo()).thenReturn("/" + invalidProductId);
+        when(productDao.getProduct(invalidProductId)).thenThrow(new ProductNotFoundException(invalidProductId));
+
+        servlet.doGet(request, response);
     }
 }

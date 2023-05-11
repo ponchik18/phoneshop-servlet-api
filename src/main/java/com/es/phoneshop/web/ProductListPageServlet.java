@@ -1,9 +1,9 @@
 package com.es.phoneshop.web;
 
-import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.ProductDao;
-import com.es.phoneshop.model.product.SortField;
-import com.es.phoneshop.model.product.SortOrder;
+import com.es.phoneshop.dao.implementation.ArrayListProductDao;
+import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dto.SortField;
+import com.es.phoneshop.dto.SortOrder;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;

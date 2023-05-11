@@ -1,5 +1,10 @@
-package com.es.phoneshop.model.product;
+package com.es.phoneshop.model;
 
+import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dao.implementation.ArrayListProductDao;
+import com.es.phoneshop.dto.SortField;
+import com.es.phoneshop.dto.SortOrder;
+import com.es.phoneshop.exception.ProductNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,14 +19,14 @@ import static org.junit.Assert.*;
 public class ArrayListProductDaoTest {
     private ProductDao productDao;
     private ArrayList<Product> products;
-    private ArrayList<Product> orderProduct;
+    private ArrayList<Product> sortedProducts;
 
     @Before
     public void setup() {
-        orderProduct = new ArrayList<>();
-        orderProduct.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage", null));
-        orderProduct.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage", null));
-        orderProduct.add(new Product("iphone14", "Apple iPhone 13 64gb ", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage", null));
+        sortedProducts = new ArrayList<>();
+        sortedProducts.add(new Product("iphone14max", "Apple iPhone 14 Max 64gb", new BigDecimal(1568), Currency.getInstance("USD"), 100, "urlForImage", null));
+        sortedProducts.add(new Product("iPhone13max", "Apple iPhone 13 Max 64gb", new BigDecimal(685), Currency.getInstance("USD"), 100, "urlForImage", null));
+        sortedProducts.add(new Product("iphone14", "Apple iPhone 13 64gb", new BigDecimal(985), Currency.getInstance("USD"), 100, "urlForImage", null));
 
         products = new ArrayList<>();
         products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(150), Currency.getInstance("USD"), 100, "urlForImage", null));
@@ -43,10 +48,10 @@ public class ArrayListProductDaoTest {
     @Test
     public void testFindSamsungProduct() {
         Product product = products.get(0);
-        String descriptionSearch = product.getDescription().split(" ")[0];
+        String expectedDescription = product.getDescription().split(" ")[0];
         productDao.save(product);
 
-        List<Product> foundedProducts = productDao.findProducts(descriptionSearch, null, null);
+        List<Product> foundedProducts = productDao.findProducts(expectedDescription, null, null);
 
         assertTrue(foundedProducts.contains(product));
 
@@ -55,25 +60,22 @@ public class ArrayListProductDaoTest {
     @Test
     public void testNotFindSamsungProduct() {
         Product product = products.get(0);
-        String descriptionSearch = product.getDescription().split(" ")[0];
         productDao.save(product);
 
-        List<Product> foundedProducts = productDao.findProducts("Apple", null, null);
+        List<Product> result = productDao.findProducts("Apple", null, null);
 
-        assertFalse(foundedProducts.contains(product));
+        assertFalse(result.contains(product));
 
     }
 
     @Test
     public void testFindProductOrder() {
-        for (int i = orderProduct.size() - 1; i >= 0; i--) {
-            productDao.save(orderProduct.get(i));
-        }
-        String query = orderProduct.get(0).getDescription();
+        sortedProducts.forEach(productDao::save);
+        String query = sortedProducts.get(0).getDescription();
 
-        List<Product> foundedProduct = productDao.findProducts(query, null, null).subList(0, orderProduct.size());
+        List<Product> result = productDao.findProducts(query, null, null).subList(0, sortedProducts.size());
 
-        assertEquals(orderProduct, foundedProduct);
+        assertEquals(sortedProducts, result);
 
     }
 
@@ -83,8 +85,8 @@ public class ArrayListProductDaoTest {
         Product testProduct = products.get(1);
         productDao.save(testProduct);
 
-        List<Product> productList = productDao.findProducts("", null, null);
-        Optional<Product> anyNullPricesProduct = productList.stream().filter(product -> Objects.isNull(product.getPrice())).findAny();
+        List<Product> result = productDao.findProducts("", null, null);
+        Optional<Product> anyNullPricesProduct = result.stream().filter(product -> Objects.isNull(product.getPrice())).findAny();
 
         assertTrue(anyNullPricesProduct.isEmpty());
     }
@@ -94,9 +96,8 @@ public class ArrayListProductDaoTest {
         Product testProduct = products.get(2);
         productDao.save(testProduct);
 
-        List<Product> productList = productDao.findProducts("", null, null);
-        Optional<Product> anyNegativeStockProduct = productList.stream().filter(product -> product.getStock() <= 0).findAny();
-
+        List<Product> result = productDao.findProducts("", null, null);
+        Optional<Product> anyNegativeStockProduct = result.stream().filter(product -> product.getStock() <= 0).findAny();
 
         assertTrue(anyNegativeStockProduct.isEmpty());
     }
@@ -139,9 +140,9 @@ public class ArrayListProductDaoTest {
         SortField field = SortField.price;
         SortOrder order = SortOrder.asc;
 
-        List<Product> compareList = productDao.findProducts("", field, order);
+        List<Product> result = productDao.findProducts("", field, order);
 
-        assertEquals(sortProduct, compareList);
+        assertEquals(sortProduct, result);
     }
 
     @Test
@@ -162,6 +163,7 @@ public class ArrayListProductDaoTest {
         final int numThreads = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
         int initialSize = productDao.findProducts("", null, null).size();
+        final int expectedSize = initialSize + numThreads;
 
         for (int i = 0; i < numThreads; i++) {
             executorService.execute(() -> {
@@ -172,7 +174,7 @@ public class ArrayListProductDaoTest {
         executorService.shutdown();
         executorService.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertEquals(numThreads + initialSize, productDao.findProducts("", null, null).size());
+        assertEquals(expectedSize, productDao.findProducts("", null, null).size());
     }
 
 }
