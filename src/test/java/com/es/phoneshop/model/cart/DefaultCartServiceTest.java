@@ -18,16 +18,21 @@ public class DefaultCartServiceTest {
     private final CartService cartService = DefaultCartService.getInstance();
     private final ProductDao productDao = ArrayListProductDao.getInstance();
     private Product testProduct;
+    private Product testEmptyProduct;
+
 
     @Before
     public void setup() {
         testProduct = new Product("test", "Test Product", new BigDecimal(100), Currency.getInstance("USD"), MAX_STOCK, "https://example.com/test.jpg", null);
+        testEmptyProduct = new Product("test15", "Test Product1", new BigDecimal(100), Currency.getInstance("USD"), MAX_STOCK, "https://example.com/test.jpg", null);
         productDao.save(testProduct);
+
     }
 
     @Test
     public void testAddToEmptyCart() throws OutOfStockException {
-        Long productId = testProduct.getId();
+        productDao.save(testEmptyProduct);
+        Long productId = testEmptyProduct.getId();
         int quantity = MAX_STOCK / 2;
 
         cartService.add(productId, quantity);
@@ -73,5 +78,4 @@ public class DefaultCartServiceTest {
 
         cartService.add(productId, 1);
     }
-
 }

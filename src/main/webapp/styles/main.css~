@@ -11,7 +11,6 @@ header a:link {
 header img {
   max-width: 64px;
 }
-
 table {
   border-collapse: collapse;
   border : 1px solid gray;
@@ -23,7 +22,10 @@ td {
 }
 .price {
   text-align: right;
+  cursor: pointer;
+  color:blue;
 }
+
 img.product-tile {
   max-width: 64px;
 }
@@ -31,8 +33,6 @@ img.product-tile {
 /* Page specific styles */
 body.product-list {
 
-<<<<<<< HEAD
-=======
 }
 
 a:visited{
@@ -64,5 +64,4 @@ a:visited{
   padding: 20px;
   border-radius: 5px;
   color: #2b2b2b;
->>>>>>> 40892b4 (Taks 3.2 PDP add To Cart)
 }
