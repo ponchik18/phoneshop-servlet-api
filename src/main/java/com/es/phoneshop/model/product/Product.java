@@ -1,4 +1,9 @@
 package com.es.phoneshop.model.product;
+<<<<<<< HEAD
+=======
+
+import com.es.phoneshop.model.history.PriceHistory;
+>>>>>>> f456660 (Task 3.1: CartService)
 
 import java.math.BigDecimal;
 import java.util.Currency;

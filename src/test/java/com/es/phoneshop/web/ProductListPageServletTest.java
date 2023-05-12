@@ -1,8 +1,13 @@
 package com.es.phoneshop.web;
 
+<<<<<<< HEAD
 import com.es.phoneshop.model.product.ArrayListProductDao;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.model.product.ProductDao;
+=======
+import com.es.phoneshop.dao.impl.ArrayListProductDao;
+import com.es.phoneshop.model.product.Product;
+>>>>>>> f456660 (Task 3.1: CartService)
 import jakarta.servlet.ServletConfig;
 import org.junit.Before;
 import org.junit.Test;
