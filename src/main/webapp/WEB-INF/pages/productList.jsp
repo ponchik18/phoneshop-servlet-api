@@ -8,12 +8,22 @@
   <p>
     Welcome to Expert-Soft training!
   </p>
+  <form>
+    <input type="text" name="search" value="${param.search}">
+    <button type="submit">Search</button>
+    <p>Count of product: ${products.size()}<p>
+  </form>
   <table>
     <thead>
       <tr>
         <td>Image</td>
-        <td>Description</td>
-        <td class="price">Price</td>
+        <td>Description
+          <tags:sortLink order="asc" sort="description"/>
+          <tags:sortLink order="desc" sort="description"/>
+        </td>
+        <td >Price
+            <tags:sortLink order="asc" sort="price"/>
+            <tags:sortLink order="desc" sort="price"/>
       </tr>
     </thead>
     <c:forEach var="product" items="${products}">
@@ -21,11 +31,47 @@
         <td>
           <img class="product-tile" src="${product.imageUrl}">
         </td>
-        <td>${product.description}</td>
-        <td class="price">
+        <td><a href="${pageContext.request.contextPath}/products/${product.id}">${product.description}</a></td>
+        <td class="price" onclick="showPriceHistory()">
           <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="${product.currency.symbol}"/>
+          <div id="priceHistoryPopup" class="popup">
+            <div class="popup-content">
+              <h2 style="text-align: center;">Price history</h2>
+              <c:choose>
+                <c:when test="${product.priceHistories.size()==0}">
+                  <p>empty</p>
+                  <br />
+                </c:when>
+                <c:otherwise>
+                  <c:forEach var="priceHistory" items="${product.priceHistories}">
+                    <fmt:formatDate value="${priceHistory.date}" type="date" pattern="dd MMM yyyy"/>
+                    <fmt:formatNumber value="${priceHistory.price}" type="currency" currencySymbol="${product.currency.symbol}"/>
+                    <br />
+                  </c:forEach>
+                  <br />
+                </c:otherwise>
+              </c:choose>
+            </div>
+          </div>
         </td>
       </tr>
     </c:forEach>
   </table>
+  <script>
+    function showPriceHistory() {
+      const popup = document.getElementById("priceHistoryPopup");
+      popup.style.display = "flex";
+    }
+
+    function closePopup() {
+      const popup = document.getElementById("priceHistoryPopup");
+      popup.style.display = "none";
+    }
+    window.addEventListener("click", function(event) {
+      const popup = document.getElementById("priceHistoryPopup");
+      if (event.target === popup) {
+        popup.style.display = "none";
+      }
+    })
+  </script>
 </tags:master>
