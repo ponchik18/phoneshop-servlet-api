@@ -1,7 +1,7 @@
 package com.es.phoneshop.model;
 
 import com.es.phoneshop.dao.ProductDao;
-import com.es.phoneshop.dao.implementation.ArrayListProductDao;
+import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.dto.SortField;
 import com.es.phoneshop.dto.SortOrder;
 import com.es.phoneshop.exception.ProductNotFoundException;
@@ -160,12 +160,12 @@ public class ArrayListProductDaoTest {
 
     @Test
     public void testConcurrentSave() throws InterruptedException {
-        final int numThreads = 10;
-        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+        final int amountOfThreads = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(amountOfThreads);
         int initialSize = productDao.findProducts("", null, null).size();
-        final int expectedSize = initialSize + numThreads;
+        final int expectedSize = initialSize + amountOfThreads;
 
-        for (int i = 0; i < numThreads; i++) {
+        for (int i = 0; i < amountOfThreads; i++) {
             executorService.execute(() -> {
                 Product product = products.get(0);
                 productDao.save(product);

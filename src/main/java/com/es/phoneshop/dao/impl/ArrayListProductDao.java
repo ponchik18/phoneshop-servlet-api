@@ -1,4 +1,4 @@
-package com.es.phoneshop.dao.implementation;
+package com.es.phoneshop.dao.impl;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dto.SortField;
@@ -58,7 +58,7 @@ public class ArrayListProductDao implements ProductDao {
             return products.stream()
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
-                    .filter(product -> Objects.isNull(search) || search.isEmpty() || isContainAnyWorld(product.getDescription(), searchWords))
+                    .filter(product -> Objects.isNull(search) || search.isEmpty() || containsAnyWord(product.getDescription(), searchWords))
                     .sorted(comparator)
                     .collect(Collectors.toList());
         } finally {
@@ -91,19 +91,19 @@ public class ArrayListProductDao implements ProductDao {
         }
     }
 
-    private boolean isContainAnyWorld(String productDescription, String[] searchWords) {
+    private boolean containsAnyWord(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)
-                .anyMatch(str -> containIgnoreCase(productDescription, str));
+                .anyMatch(searchWord -> containsIgnoreCase(productDescription, searchWord));
     }
 
     private long countOfMatch(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)
-                .filter(str -> containIgnoreCase(productDescription, str))
+                .filter(searchWord -> containsIgnoreCase(productDescription, searchWord))
                 .count();
     }
 
-    private boolean containIgnoreCase(String str, String searchStr) {
-        return str.toLowerCase().contains(searchStr.toLowerCase());
+    private boolean containsIgnoreCase(String searchWord, String searchStr) {
+        return searchWord.toLowerCase().contains(searchStr.toLowerCase());
     }
 
     private Comparator<Product> createComparator(SortField field, SortOrder order, String[] searchWords) {
