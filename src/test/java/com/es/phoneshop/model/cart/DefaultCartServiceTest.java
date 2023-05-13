@@ -17,9 +17,9 @@ public class DefaultCartServiceTest {
     private static final int MAX_STOCK = 10;
     private final CartService cartService = DefaultCartService.getInstance();
     private final ProductDao productDao = ArrayListProductDao.getInstance();
+    private final Cart cart = new Cart();
     private Product testProduct;
     private Product testEmptyProduct;
-
 
     @Before
     public void setup() {
@@ -35,9 +35,9 @@ public class DefaultCartServiceTest {
         Long productId = testEmptyProduct.getId();
         int quantity = MAX_STOCK / 2;
 
-        cartService.add(productId, quantity);
+        cartService.add(cart, productId, quantity);
 
-        CartItem expectedCartItem = cartService.getCart().getItems().stream()
+        CartItem expectedCartItem = cart.getItems().stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .findAny()
                 .orElse(null);
@@ -51,19 +51,19 @@ public class DefaultCartServiceTest {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK * 2;
 
-        cartService.add(productId, quantity);
+        cartService.add(cart, productId, quantity);
     }
 
     @Test
     public void testAddToExistingCart() throws OutOfStockException {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK / 3; //3
-        cartService.add(productId, quantity);
+        cartService.add(cart, productId, quantity);
 
-        cartService.add(productId, 1);
+        cartService.add(cart, productId, 1);
         quantity++;
 
-        CartItem expectedCartItem = cartService.getCart().getItems().stream()
+        CartItem expectedCartItem = cart.getItems().stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .findAny()
                 .orElse(null);
@@ -74,8 +74,8 @@ public class DefaultCartServiceTest {
     @Test(expected = OutOfStockException.class)
     public void testAddToExistingCartWithInvalidQuantity() throws OutOfStockException {
         Long productId = testProduct.getId();
-        cartService.add(productId, MAX_STOCK);
+        cartService.add(cart, productId, MAX_STOCK);
 
-        cartService.add(productId, 1);
+        cartService.add(cart, productId, 1);
     }
 }

@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,6 +48,7 @@ public class ProductDetailsPagePageServletTest {
         servlet.setProductDao(productDao);
         servlet.setCartService(cartService);
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
+        when(request.getLocale()).thenReturn(Locale.ENGLISH);
     }
 
     @Test
@@ -72,23 +74,23 @@ public class ProductDetailsPagePageServletTest {
     @Test
     public void testDoPostSuccess() throws ServletException, IOException, OutOfStockException {
         int initialQuantity = 5;
-        String redirectLink = request.getContextPath()+"/products/"+String.valueOf(productId)+"?message=Product added to cart successfully";
-        when(request.getPathInfo()).thenReturn("/"+productId);
+        String redirectLink = request.getContextPath() + "/products/" + productId + "?message=Product added to cart successfully";
+        when(request.getPathInfo()).thenReturn("/" + productId);
         when(request.getParameter("quantity")).thenReturn(String.valueOf(initialQuantity));
 
-        servlet.doPost(request,response);
+        servlet.doPost(request, response);
 
-        verify(cartService).add(productId, initialQuantity);
+        verify(cartService).add(cartService.getCart(request), productId, initialQuantity);
         verify(response).sendRedirect(redirectLink);
         verify(request, never()).setAttribute(eq("error"), any());
     }
 
     @Test
     public void testDoPostInvalidQuantity() throws ServletException, IOException, OutOfStockException {
-        when(request.getPathInfo()).thenReturn("/"+productId);
-        when(request.getParameter("quantity")).thenReturn(String.valueOf("qwer"));
+        when(request.getPathInfo()).thenReturn("/" + productId);
+        when(request.getParameter("quantity")).thenReturn("qwer");
 
-        servlet.doPost(request,response);
+        servlet.doPost(request, response);
 
         verify(request).setAttribute("error", "Not a number");
     }

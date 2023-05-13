@@ -7,8 +7,15 @@ import com.es.phoneshop.model.product.ProductDao;
 =======
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.model.product.Product;
+<<<<<<< HEAD
 >>>>>>> f456660 (Task 3.1: CartService)
+=======
+import jakarta.servlet.RequestDispatcher;
+>>>>>>> b8dceb9 (Task 3.3: HttpSessionCartService)
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,17 +23,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductListPageServletTest {
@@ -43,9 +48,9 @@ public class ProductListPageServletTest {
     @Mock
     private ArrayListProductDao productDao;
 
-    private ProductListPageServlet servlet = new ProductListPageServlet();
+    private final ProductListPageServlet servlet = new ProductListPageServlet();
 
-    private ArrayList<Product> products = new ArrayList<>();
+    private final ArrayList<Product> products = new ArrayList<>();
 
     @Before
     public void setup() throws ServletException {
