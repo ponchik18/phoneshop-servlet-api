@@ -20,7 +20,7 @@ public class DefaultCartService implements CartService {
 
     public static DefaultCartService getInstance() {
         if (instance == null) {
-            synchronized (ArrayListProductDao.class) {
+            synchronized (DefaultCartService.class) {
                 if (instance == null) {
                     instance = new DefaultCartService();
                 }

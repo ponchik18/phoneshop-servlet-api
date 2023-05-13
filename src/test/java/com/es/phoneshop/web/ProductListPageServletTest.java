@@ -1,17 +1,8 @@
 package com.es.phoneshop.web;
 
-<<<<<<< HEAD
-import com.es.phoneshop.model.product.ArrayListProductDao;
-import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.model.product.ProductDao;
-=======
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.model.product.Product;
-<<<<<<< HEAD
->>>>>>> f456660 (Task 3.1: CartService)
-=======
 import jakarta.servlet.RequestDispatcher;
->>>>>>> b8dceb9 (Task 3.3: HttpSessionCartService)
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -58,9 +48,9 @@ public class ProductListPageServletTest {
         servlet.init(config);
         servlet.setProductDao(productDao);
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage"));
-        products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage"));
-        when(productDao.findProducts()).thenReturn(products);
+        products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage", null));
+        products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage", null));
+        when(productDao.findProducts(request.getParameter("search"), null, null)).thenReturn(products);
     }
 
     @Test

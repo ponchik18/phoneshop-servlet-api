@@ -6,6 +6,9 @@ import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartService;
 import com.es.phoneshop.model.cart.DefaultCartService;
+import com.es.phoneshop.model.history.ProductHistoryList;
+import com.es.phoneshop.model.history.ProductsTrackingHistory;
+import com.es.phoneshop.model.product.Product;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -21,6 +24,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
     private ProductDao productDao;
 
     private CartService cartService;
+    private ProductsTrackingHistory productsTrackingHistory;
 
     public void setProductDao(ProductDao productDao) {
         this.productDao = productDao;
@@ -35,13 +39,18 @@ public class ProductDetailsPageServlet extends HttpServlet {
         super.init(config);
         productDao = ArrayListProductDao.getInstance();
         cartService = DefaultCartService.getInstance();
+        productsTrackingHistory = ProductsTrackingHistory.getInstance();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long productId = Long.parseLong(request.getPathInfo().substring(1));
-        request.setAttribute("product", productDao.getProduct(productId));
+        Product product = productDao.getProduct(productId);
+        request.setAttribute("product", product);
         request.setAttribute("cart", cartService.getCart(request));
+        ProductHistoryList productHistoryList = productsTrackingHistory.getProductHistoryList(request);
+        request.setAttribute("productHistoryList", productHistoryList.getProducts());
+        productsTrackingHistory.addToViewed(productHistoryList, product);
         request.getRequestDispatcher("/WEB-INF/pages/productDetails.jsp").forward(request, response);
     }
 
