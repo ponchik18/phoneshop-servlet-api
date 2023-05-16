@@ -3,6 +3,7 @@ package com.es.phoneshop.model.history;
 import com.es.phoneshop.model.product.Product;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ProductHistoryList {

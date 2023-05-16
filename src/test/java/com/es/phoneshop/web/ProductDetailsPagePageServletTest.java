@@ -3,13 +3,14 @@ package com.es.phoneshop.web;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.exception.ProductNotFoundException;
-import com.es.phoneshop.model.cart.DefaultCartService;
+import com.es.phoneshop.service.iml.DefaultCartService;
 import com.es.phoneshop.model.product.Product;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,8 @@ public class ProductDetailsPagePageServletTest {
     @Mock
     private HttpServletResponse response;
     @Mock
+    private HttpSession session;
+    @Mock
     private RequestDispatcher requestDispatcher;
     @Mock
     private ServletConfig config;
@@ -49,6 +52,8 @@ public class ProductDetailsPagePageServletTest {
         servlet.setCartService(cartService);
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
         when(request.getLocale()).thenReturn(Locale.ENGLISH);
+        when(request.getSession()).thenReturn(session);
+        when(session.getId()).thenReturn("sessionId");
     }
 
     @Test
@@ -80,7 +85,7 @@ public class ProductDetailsPagePageServletTest {
 
         servlet.doPost(request, response);
 
-        verify(cartService).add(cartService.getCart(request), productId, initialQuantity);
+        verify(cartService).add(cartService.getCart(request.getSession()), productId, initialQuantity, "");
         verify(response).sendRedirect(redirectLink);
         verify(request, never()).setAttribute(eq("error"), any());
     }

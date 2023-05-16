@@ -4,6 +4,9 @@ import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.service.CartService;
+import com.es.phoneshop.service.iml.DefaultCartService;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +38,7 @@ public class DefaultCartServiceTest {
         Long productId = testEmptyProduct.getId();
         int quantity = MAX_STOCK / 2;
 
-        cartService.add(cart, productId, quantity);
+        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
 
         CartItem expectedCartItem = cart.getItems().stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
@@ -51,16 +54,16 @@ public class DefaultCartServiceTest {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK * 2;
 
-        cartService.add(cart, productId, quantity);
+        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
     }
 
     @Test
     public void testAddToExistingCart() throws OutOfStockException {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK / 3; //3
-        cartService.add(cart, productId, quantity);
+        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
 
-        cartService.add(cart, productId, 1);
+        cartService.add(cart, productId, 1, StringUtils.EMPTY);
         quantity++;
 
         CartItem expectedCartItem = cart.getItems().stream()
@@ -74,8 +77,8 @@ public class DefaultCartServiceTest {
     @Test(expected = OutOfStockException.class)
     public void testAddToExistingCartWithInvalidQuantity() throws OutOfStockException {
         Long productId = testProduct.getId();
-        cartService.add(cart, productId, MAX_STOCK);
+        cartService.add(cart, productId, MAX_STOCK, StringUtils.EMPTY);
 
-        cartService.add(cart, productId, 1);
+        cartService.add(cart, productId, 1, StringUtils.EMPTY);
     }
 }

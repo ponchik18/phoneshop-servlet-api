@@ -93,4 +93,7 @@
             </c:forEach>
         </table>
     </c:if>
+        <p>
+            (c) Expert Soft
+        </p>
 </tags:master>

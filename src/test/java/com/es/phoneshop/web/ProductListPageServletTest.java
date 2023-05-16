@@ -1,7 +1,9 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
+import com.es.phoneshop.model.history.ProductHistoryList;
 import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.service.ProductsTrackingHistoryService;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -25,40 +27,44 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductListPageServletTest {
+    private final ProductListPageServlet servlet = new ProductListPageServlet();
+    private final ArrayList<Product> products = new ArrayList<>();
+    private final ProductHistoryList productHistoryList = new ProductHistoryList();
     @Mock
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
     @Mock
     private RequestDispatcher requestDispatcher;
-
     @Mock
     private ServletConfig config;
-
     @Mock
     private ArrayListProductDao productDao;
-
-    private final ProductListPageServlet servlet = new ProductListPageServlet();
-
-    private final ArrayList<Product> products = new ArrayList<>();
+    @Mock
+    private ProductsTrackingHistoryService productsTrackingHistoryService;
 
     @Before
     public void setup() throws ServletException {
 
         servlet.init(config);
         servlet.setProductDao(productDao);
-        when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
+        servlet.setProductsTrackingHistoryService(productsTrackingHistoryService);
+
         products.add(new Product("sfold", "Samsung Galaxy Fold", new BigDecimal(100), Currency.getInstance("USD"), 100, "urlForImage", null));
         products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage", null));
+
+        when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
         when(productDao.findProducts(request.getParameter("search"), null, null)).thenReturn(products);
     }
 
     @Test
     public void testDoGet() throws ServletException, IOException {
+        when(productsTrackingHistoryService.getProductHistoryList(request.getSession())).thenReturn(productHistoryList);
+
         servlet.doGet(request, response);
 
+        verify(request).setAttribute(eq("productHistoryList"), eq(productHistoryList.getProducts()));
         verify(requestDispatcher).forward(request, response);
         verify(request).setAttribute(eq("products"), eq(products));
     }
-
 }

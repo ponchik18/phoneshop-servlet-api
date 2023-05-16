@@ -81,6 +81,9 @@
             </c:forEach>
         </table>
     </c:if>
+    <p>
+        (c) Expert Soft
+    </p>
     <script>
         function showPriceHistory() {
             const popup = document.getElementById("priceHistoryPopup");
