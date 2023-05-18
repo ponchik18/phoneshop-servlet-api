@@ -24,10 +24,6 @@ public class Product {
 
     private List<PriceHistory> priceHistories;
 
-    public List<PriceHistory> getPriceHistories() {
-        return priceHistories;
-    }
-
     public Product() {
     }
 
@@ -39,6 +35,10 @@ public class Product {
         this.imageUrl = imageUrl;
         this.priceHistories = Objects.isNull(priceHistories) ? new ArrayList<>() : priceHistories;
         setPrice(price);
+    }
+
+    public List<PriceHistory> getPriceHistories() {
+        return priceHistories;
     }
 
     public Long getId() {
@@ -73,7 +73,7 @@ public class Product {
         priceHistories.add(new PriceHistory(Date.from(LocalDate
                 .now()
                 .atStartOfDay(ZoneId.systemDefault())
-                .toInstant()), price));
+                .toInstant()),price));
 
         this.price = price;
     }

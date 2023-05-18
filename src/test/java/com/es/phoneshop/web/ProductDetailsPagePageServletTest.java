@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+
 import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,6 +35,7 @@ public class ProductDetailsPagePageServletTest {
     @Mock
     private HttpServletResponse response;
     @Mock
+
     private HttpSession session;
     @Mock
     private RequestDispatcher requestDispatcher;

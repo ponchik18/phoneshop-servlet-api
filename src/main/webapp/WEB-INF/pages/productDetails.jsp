@@ -5,7 +5,7 @@
 
 <jsp:useBean id="product" type="com.es.phoneshop.model.product.Product" scope="request"/>
 <jsp:useBean id="cart" type="com.es.phoneshop.model.cart.Cart" scope="request"/>
-<jsp:useBean id="productHistoryList" type="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="productHistory" type="java.util.ArrayList" scope="request"/>
 <tags:master pageTitle="${product.description}">
     <p>
         Welcome to Expert-Soft training!
@@ -72,10 +72,10 @@
             <button type="submit">Add to cart</button>
         </p>
     </form>
-    <c:if test="${productHistoryList.size()>0}">
+    <c:if test="${productHistory.size()>0}">
         <table>
             <h3>Recently viewed</h3>
-            <c:forEach var="product" items="${productHistoryList}">
+            <c:forEach var="product" items="${productHistory}">
                 <td>
                     <p>
                         <img class="product-tile" src="${product.imageUrl}">
@@ -93,7 +93,4 @@
             </c:forEach>
         </table>
     </c:if>
-        <p>
-            (c) Expert Soft
-        </p>
 </tags:master>

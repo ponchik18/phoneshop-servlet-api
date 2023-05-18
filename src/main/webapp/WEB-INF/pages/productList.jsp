@@ -4,7 +4,7 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <jsp:useBean id="products" type="java.util.ArrayList" scope="request"/>
-<jsp:useBean id="productHistoryList" type="java.util.ArrayList" scope="request"/>
+<jsp:useBean id="productHistory" type="java.util.ArrayList" scope="request"/>
 <tags:master pageTitle="Product List">
     <p>
         Welcome to Expert-Soft training!
@@ -33,10 +33,10 @@
                     <img class="product-tile" src="${product.imageUrl}">
                 </td>
                 <td><a href="${pageContext.request.contextPath}/products/${product.id}">${product.description}</a></td>
-                <td class="price" onclick="showPriceHistory()">
+                <td class="price" onclick="showPriceHistory(this)">
                     <fmt:formatNumber value="${product.price}" type="currency"
-                                      currencySymbol="${product.currency.symbol}"/>
-                    <div id="priceHistoryPopup" class="popup">
+                                      currencySymbol="${product.currency.symbol}" />
+                    <div class="popup">
                         <div class="popup-content">
                             <h2 style="text-align: center;">Price history</h2>
                             <c:choose>
@@ -60,10 +60,10 @@
             </tr>
         </c:forEach>
     </table>
-    <c:if test="${productHistoryList.size()>0}">
+    <c:if test="${productHistory.size()>0}">
         <table>
             <h3>Recently viewed</h3>
-            <c:forEach var="product" items="${productHistoryList}">
+            <c:forEach var="product" items="${productHistory}">
                 <td>
                     <p>
                         <img class="product-tile" src="${product.imageUrl}">
@@ -81,24 +81,18 @@
             </c:forEach>
         </table>
     </c:if>
-    <p>
-        (c) Expert Soft
-    </p>
     <script>
-        function showPriceHistory() {
-            const popup = document.getElementById("priceHistoryPopup");
-            popup.style.display = "flex";
-        }
+        let modal;
 
-        function closePopup() {
-            const popup = document.getElementById("priceHistoryPopup");
-            popup.style.display = "none";
+        function showPriceHistory(element) {
+            modal = element.querySelector('.popup')
+            modal.style.display = "flex";
         }
 
         window.addEventListener("click", function (event) {
-            const popup = document.getElementById("priceHistoryPopup");
-            if (event.target === popup) {
-                popup.style.display = "none";
+
+            if(event.target === modal) {
+                modal.style.display = "none";
             }
         })
     </script>

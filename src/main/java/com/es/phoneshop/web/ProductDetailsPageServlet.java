@@ -2,13 +2,15 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
+
 import com.es.phoneshop.exception.OutOfStockException;
+
 import com.es.phoneshop.model.cart.Cart;
+import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.iml.DefaultCartService;
 import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.service.iml.DefaultProductsTrackingHistoryService;
-import com.es.phoneshop.model.product.Product;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -43,7 +45,8 @@ public class ProductDetailsPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         Long productId = Long.parseLong(request.getPathInfo().substring(1));
         Product product = productDao.getProduct(productId);
         ProductsHistory productHistory = productsTrackingHistory.getProductHistory(request.getSession());
@@ -84,7 +87,8 @@ public class ProductDetailsPageServlet extends HttpServlet {
         cartService.add(cart, productId, quantity, request.getSession().getId());
     }
 
-    private boolean isSuccessfullyAddingToCart(HttpServletRequest request, HttpServletResponse response, Long productId) throws ServletException, IOException {
+    private boolean isSuccessfullyAddingToCart(HttpServletRequest request, HttpServletResponse response, Long productId)
+            throws ServletException, IOException {
         int quantity;
 
         try {
@@ -104,5 +108,4 @@ public class ProductDetailsPageServlet extends HttpServlet {
         }
         return true;
     }
-
 }

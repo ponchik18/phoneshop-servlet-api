@@ -54,5 +54,4 @@
     <location>/WEB-INF/pages/500.jsp</location>
   </error-page>
 
-
 </web-app>
