@@ -18,7 +18,7 @@ public class DefaultProductsTrackingHistoryServiceTest {
     private static final int MAX_SIZE_HISTORY_LIST = DefaultProductsTrackingHistoryService.MAX_SIZE;
     private final DefaultProductsTrackingHistoryService historyService =
             DefaultProductsTrackingHistoryService.getInstance();
-    private final ProductHistoryList productHistoryList = new ProductHistoryList();
+    private final ProductsHistory productHistory = new ProductsHistory();
     private final List<Product> testProducts = new ArrayList<>();
 
     @Before
@@ -38,9 +38,9 @@ public class DefaultProductsTrackingHistoryServiceTest {
         }
 
         testProducts.forEach(testProducts ->
-                historyService.addToViewed(productHistoryList, testProducts, "sessionId"));
+                historyService.addToViewed(productHistory, testProducts, "sessionId"));
 
-        assertEquals(expextedList, productHistoryList.getProducts());
+        assertEquals(expextedList, productHistory.getProducts());
     }
 
 }

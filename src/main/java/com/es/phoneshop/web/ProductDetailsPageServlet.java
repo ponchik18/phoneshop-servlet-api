@@ -6,7 +6,7 @@ import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.iml.DefaultCartService;
-import com.es.phoneshop.model.history.ProductHistoryList;
+import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.service.iml.DefaultProductsTrackingHistoryService;
 import com.es.phoneshop.model.product.Product;
 import jakarta.servlet.ServletConfig;
@@ -46,12 +46,12 @@ public class ProductDetailsPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long productId = Long.parseLong(request.getPathInfo().substring(1));
         Product product = productDao.getProduct(productId);
-        ProductHistoryList productHistoryList = productsTrackingHistory.getProductHistoryList(request.getSession());
-        productsTrackingHistory.addToViewed(productHistoryList, product, request.getSession().getId());
+        ProductsHistory productHistory = productsTrackingHistory.getProductHistory(request.getSession());
+        productsTrackingHistory.addToViewed(productHistory, product, request.getSession().getId());
 
         request.setAttribute("product", product);
         request.setAttribute("cart", cartService.getCart(request.getSession()));
-        request.setAttribute("productHistoryList", productHistoryList.getProducts());
+        request.setAttribute("productHistory", productHistory.getProducts());
         request.getRequestDispatcher("/WEB-INF/pages/productDetails.jsp").forward(request, response);
     }
 
@@ -67,7 +67,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
         }
     }
 
-    private void setErrorAndRedirect(HttpServletRequest request, HttpServletResponse response, String errorMessage)
+    private void setErrorAndForward(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws ServletException, IOException {
         request.setAttribute("error", errorMessage);
         doGet(request, response);
@@ -90,13 +90,13 @@ public class ProductDetailsPageServlet extends HttpServlet {
         try {
             quantity = getProductQuantity(request, response);
         } catch (ParseException exception) {
-            setErrorAndRedirect(request, response, "Not a number");
+            setErrorAndForward(request, response, "Not a number");
             return false;
         }
         try {
             addToCart(request, response, productId, quantity);
         } catch (OutOfStockException exception) {
-            setErrorAndRedirect(request, response, "Invalid quantity " +
+            setErrorAndForward(request, response, "Invalid quantity " +
                     exception.getQuantity() +
                     ". Available only " +
                     exception.getAvailableStock());

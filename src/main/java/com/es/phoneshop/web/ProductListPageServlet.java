@@ -40,7 +40,7 @@ public class ProductListPageServlet extends HttpServlet {
         String sortField = request.getParameter("sort");
         String sortOrder = request.getParameter("order");
 
-        request.setAttribute("productHistoryList", productsTrackingHistory.getProductHistoryList(request.getSession()).getProducts());
+        request.setAttribute("productHistory", productsTrackingHistory.getProductHistory(request.getSession()).getProducts());
         request.setAttribute("products", productDao.findProducts(search, Optional.ofNullable(sortField).map(SortField::valueOf).orElse(null), Optional.ofNullable(sortOrder).map(SortOrder::valueOf).orElse(null)));
         request.getRequestDispatcher("/WEB-INF/pages/productList.jsp").forward(request, response);
     }

@@ -1,7 +1,7 @@
 package com.es.phoneshop.web;
 
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
-import com.es.phoneshop.model.history.ProductHistoryList;
+import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.ProductsTrackingHistoryService;
 import jakarta.servlet.RequestDispatcher;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class ProductListPageServletTest {
     private final ProductListPageServlet servlet = new ProductListPageServlet();
     private final ArrayList<Product> products = new ArrayList<>();
-    private final ProductHistoryList productHistoryList = new ProductHistoryList();
+    private final ProductsHistory productHistory = new ProductsHistory();
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -59,11 +59,11 @@ public class ProductListPageServletTest {
 
     @Test
     public void testDoGet() throws ServletException, IOException {
-        when(productsTrackingHistoryService.getProductHistoryList(request.getSession())).thenReturn(productHistoryList);
+        when(productsTrackingHistoryService.getProductHistory(request.getSession())).thenReturn(productHistory);
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("productHistoryList"), eq(productHistoryList.getProducts()));
+        verify(request).setAttribute(eq("productHistory"), eq(productHistory.getProducts()));
         verify(requestDispatcher).forward(request, response);
         verify(request).setAttribute(eq("products"), eq(products));
     }

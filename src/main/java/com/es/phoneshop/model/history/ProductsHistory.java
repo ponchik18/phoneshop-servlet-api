@@ -3,14 +3,13 @@ package com.es.phoneshop.model.history;
 import com.es.phoneshop.model.product.Product;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-public class ProductHistoryList {
+public class ProductsHistory {
     private static final int MAX_SIZE = 3;
     private final List<Product> products;
 
-    public ProductHistoryList() {
+    public ProductsHistory() {
         this.products = new ArrayList<>();
     }
 
