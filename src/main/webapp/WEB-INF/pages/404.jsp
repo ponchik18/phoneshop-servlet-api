@@ -4,5 +4,5 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <tags:master pageTitle="404 error">
-  <h1>404 Not Found Page </h1>
+    <h1>404 Not Found Page </h1>
 </tags:master>

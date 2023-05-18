@@ -4,5 +4,5 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <tags:master pageTitle="500 Error">
-  <h1>500 <br>Internal Server Error </h1>
+    <h1>500 <br>Internal Server Error </h1>
 </tags:master>

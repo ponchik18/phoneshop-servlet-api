@@ -1,4 +1,6 @@
-package com.es.phoneshop.model;
+package com.es.phoneshop.model.product;
+
+import com.es.phoneshop.model.price.PriceHistory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,10 +24,6 @@ public class Product {
 
     private List<PriceHistory> priceHistories;
 
-    public List<PriceHistory> getPriceHistories() {
-        return priceHistories;
-    }
-
     public Product() {
     }
 
@@ -37,6 +35,10 @@ public class Product {
         this.imageUrl = imageUrl;
         this.priceHistories = Objects.isNull(priceHistories) ? new ArrayList<>() : priceHistories;
         setPrice(price);
+    }
+
+    public List<PriceHistory> getPriceHistories() {
+        return priceHistories;
     }
 
     public Long getId() {
@@ -69,9 +71,9 @@ public class Product {
 
     public void setPrice(BigDecimal price) {
         priceHistories.add(new PriceHistory(Date.from(LocalDate
-                        .now()
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant()), price));
+                .now()
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()),price));
 
         this.price = price;
     }

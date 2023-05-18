@@ -5,5 +5,5 @@
 
 <%--<jsp:useBean id="exeption" type="com.es.phoneshop.model.product.exception.ProductNotFoundException" scope="request"/>--%>
 <tags:master pageTitle="Product Not Found">
-  <h1>404 Product ${pageContext.exception.id} Not Found </h1>
+    <h1>404 Product ${pageContext.exception.id} Not Found </h1>
 </tags:master>

@@ -2,8 +2,8 @@ package com.es.phoneshop.web;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
-import com.es.phoneshop.model.PriceHistory;
-import com.es.phoneshop.model.Product;
+import com.es.phoneshop.model.price.PriceHistory;
+import com.es.phoneshop.model.product.Product;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
