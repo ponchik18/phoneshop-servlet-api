@@ -87,7 +87,7 @@ public class ProductDetailsPagePageServletTest {
 
         servlet.doPost(request, response);
 
-        verify(cartService).add(cartService.getCart(request.getSession()), productId, initialQuantity, "");
+        verify(cartService).add(cartService.getCart(request.getSession()), productId, initialQuantity);
         verify(response).sendRedirect(redirectLink);
         verify(request, never()).setAttribute(eq("error"), any());
     }

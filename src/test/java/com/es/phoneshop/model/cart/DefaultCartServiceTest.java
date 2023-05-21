@@ -3,10 +3,10 @@ package com.es.phoneshop.model.cart;
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.exception.OutOfStockException;
+import com.es.phoneshop.exception.ProductNotFoundException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.iml.DefaultCartService;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class DefaultCartServiceTest {
 
@@ -38,7 +39,7 @@ public class DefaultCartServiceTest {
         Long productId = testEmptyProduct.getId();
         int quantity = MAX_STOCK / 2;
 
-        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
+        cartService.add(cart, productId, quantity);
 
         CartItem expectedCartItem = cart.getItems().stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
@@ -54,16 +55,16 @@ public class DefaultCartServiceTest {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK * 2;
 
-        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
+        cartService.add(cart, productId, quantity);
     }
 
     @Test
     public void testAddToExistingCart() throws OutOfStockException {
         Long productId = testProduct.getId();
         int quantity = MAX_STOCK / 3; //3
-        cartService.add(cart, productId, quantity, StringUtils.EMPTY);
+        cartService.add(cart, productId, quantity);
 
-        cartService.add(cart, productId, 1, StringUtils.EMPTY);
+        cartService.add(cart, productId, 1);
         quantity++;
 
         CartItem expectedCartItem = cart.getItems().stream()
@@ -77,8 +78,53 @@ public class DefaultCartServiceTest {
     @Test(expected = OutOfStockException.class)
     public void testAddToExistingCartWithInvalidQuantity() throws OutOfStockException {
         Long productId = testProduct.getId();
-        cartService.add(cart, productId, MAX_STOCK, StringUtils.EMPTY);
+        cartService.add(cart, productId, MAX_STOCK);
 
-        cartService.add(cart, productId, 1, StringUtils.EMPTY);
+        cartService.add(cart, productId, 1);
     }
+
+    @Test
+    public void testUpdateCart() throws OutOfStockException {
+        productDao.save(testEmptyProduct);
+        Long productId = testEmptyProduct.getId();
+        int quantity = MAX_STOCK / 2;
+        cartService.add(cart, productId, 2);
+
+        cartService.update(cart, productId, quantity);
+
+        CartItem expectedCartItem = cart.getItems().stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
+                .findAny()
+                .orElse(null);
+        assert expectedCartItem != null;
+        assertEquals(expectedCartItem.getProduct().getId(), productId);
+        assertEquals(expectedCartItem.getQuantity(), quantity);
+    }
+
+    @Test(expected = ProductNotFoundException.class)
+    public void testUpdateCartNonexistentCartItem() throws OutOfStockException {
+        productDao.save(testEmptyProduct);
+        Long productId = testEmptyProduct.getId();
+        int quantity = MAX_STOCK / 2;
+
+        cartService.update(cart, productId, quantity);
+    }
+
+    @Test
+    public void testDeleteCartItem() throws OutOfStockException {
+        productDao.save(testEmptyProduct);
+        Long productId = testEmptyProduct.getId();
+        int quantity = MAX_STOCK / 2;
+        cartService.add(cart, productId, MAX_STOCK);
+
+        cartService.delete(cart, productId);
+
+        CartItem foundCartItem = cart.getItems().stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
+                .findAny()
+                .orElse(null);
+        assertNull(foundCartItem);
+    }
+
+
 }

@@ -2,12 +2,13 @@ package com.es.phoneshop.model.product;
 
 import com.es.phoneshop.model.price.PriceHistory;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-public class Product {
+public class Product implements Serializable {
     private Long id;
     private String code;
     private String description;
@@ -21,6 +22,7 @@ public class Product {
     private Currency currency;
     private int stock;
     private String imageUrl;
+
 
     private List<PriceHistory> priceHistories;
 
@@ -102,7 +104,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public void setPricesHistory(List<PriceHistory> priceHistories) {
+    public void setPriceHistories(List<PriceHistory> priceHistories) {
         this.priceHistories = priceHistories;
     }
 
