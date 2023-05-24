@@ -1,12 +1,13 @@
-package com.es.phoneshop.web;
+package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.exception.FractionalNumberException;
 import com.es.phoneshop.exception.NegativeNumberException;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.cart.Cart;
-import com.es.phoneshop.quantity.QuantityRetriever;
 import com.es.phoneshop.service.CartService;
-import com.es.phoneshop.service.iml.DefaultCartService;
+import com.es.phoneshop.service.QuantityRetrieverService;
+import com.es.phoneshop.service.impl.DefaultCartService;
+import com.es.phoneshop.service.impl.DefaultQuantityRetrieverService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -18,11 +19,18 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class CartPageServlet extends HttpServlet {
 
 
     private CartService cartService;
+
+    private QuantityRetrieverService quantityRetrieverService;
+
+    public void setQuantityRetrieverService(QuantityRetrieverService quantityRetrieverService) {
+        this.quantityRetrieverService = quantityRetrieverService;
+    }
 
     public void setCartService(CartService cartService) {
         this.cartService = cartService;
@@ -32,6 +40,7 @@ public class CartPageServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         cartService = DefaultCartService.getInstance();
+        quantityRetrieverService = DefaultQuantityRetrieverService.getInstance();
     }
 
     @Override
@@ -50,10 +59,9 @@ public class CartPageServlet extends HttpServlet {
         Cart cart = cartService.getCart(request.getSession());
         Map<Long, String> errors = new HashMap<>();
 
-        for (int i = 0; i < productsId.length; i++) {
-            Long productId = Long.valueOf(productsId[i]);
-            validateUpdateCartItem(cart, productId, errors, locale, quantities[i]);
-        }
+        IntStream.range(0, productsId.length)
+                .forEach(i ->validateUpdateCartItem(cart, Long.valueOf(productsId[i]), errors, locale, quantities[i]));
+
         if (errors.size() > 0) {
             request.setAttribute("errors", errors);
             doGet(request, response);
@@ -62,13 +70,11 @@ public class CartPageServlet extends HttpServlet {
                     "/cart" +
                     "?message=Quantity has been changed successfully");
         }
-
-
     }
 
     private void validateUpdateCartItem(Cart cart, Long productId, Map<Long, String> errors, Locale locale, String quantityString) {
         try {
-            int quantity = QuantityRetriever.getProductQuantity(quantityString, locale);
+            int quantity = quantityRetrieverService.getProductQuantity(quantityString, locale);
             cartService.update(cart, productId, quantity);
         } catch (ParseException exception) {
             errors.put(productId, "Not a number");

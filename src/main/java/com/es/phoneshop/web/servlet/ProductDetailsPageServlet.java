@@ -1,4 +1,4 @@
-package com.es.phoneshop.web;
+package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
@@ -8,10 +8,11 @@ import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.quantity.QuantityRetriever;
 import com.es.phoneshop.service.CartService;
-import com.es.phoneshop.service.iml.DefaultCartService;
-import com.es.phoneshop.service.iml.DefaultProductsTrackingHistoryService;
+import com.es.phoneshop.service.QuantityRetrieverService;
+import com.es.phoneshop.service.impl.DefaultCartService;
+import com.es.phoneshop.service.impl.DefaultProductsTrackingHistoryService;
+import com.es.phoneshop.service.impl.DefaultQuantityRetrieverService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -28,6 +29,8 @@ public class ProductDetailsPageServlet extends HttpServlet {
     private CartService cartService;
     private DefaultProductsTrackingHistoryService productsTrackingHistory;
 
+    private QuantityRetrieverService quantityRetrieverService;
+
     public void setProductDao(ProductDao productDao) {
         this.productDao = productDao;
     }
@@ -36,12 +39,18 @@ public class ProductDetailsPageServlet extends HttpServlet {
         this.cartService = cartService;
     }
 
+    public void setQuantityRetrieverService(QuantityRetrieverService quantityRetrieverService) {
+        this.quantityRetrieverService = quantityRetrieverService;
+    }
+
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         productDao = ArrayListProductDao.getInstance();
         cartService = DefaultCartService.getInstance();
         productsTrackingHistory = DefaultProductsTrackingHistoryService.getInstance();
+        quantityRetrieverService = DefaultQuantityRetrieverService.getInstance();
     }
 
     @Override
@@ -62,7 +71,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long productId = Long.parseLong(request.getPathInfo().substring(1));
 
-        if (isSuccessfullyAddingToCart(request, response, productId)) {
+        if (isSuccessfullyAddedToCart(request, response, productId)) {
             response.sendRedirect(request.getContextPath() +
                     "/products/" +
                     productId +
@@ -76,18 +85,18 @@ public class ProductDetailsPageServlet extends HttpServlet {
         doGet(request, response);
     }
 
-    private void addToCart(HttpServletRequest request, HttpServletResponse response, Long productId, int quantity)
+    private void addToCart(HttpServletRequest request, Long productId, int quantity)
             throws OutOfStockException {
         Cart cart = cartService.getCart(request.getSession());
         cartService.add(cart, productId, quantity);
     }
 
-    private boolean isSuccessfullyAddingToCart(HttpServletRequest request, HttpServletResponse response, Long productId)
+    private boolean isSuccessfullyAddedToCart(HttpServletRequest request, HttpServletResponse response, Long productId)
             throws ServletException, IOException {
         int quantity;
 
         try {
-            quantity = QuantityRetriever.getProductQuantity(request.getParameter("quantity"), request.getLocale());
+            quantity = quantityRetrieverService.getProductQuantity(request.getParameter("quantity"), request.getLocale());
         } catch (ParseException exception) {
             setErrorAndForward(request, response, "Not a number");
             return false;
@@ -96,7 +105,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
             return false;
         }
         try {
-            addToCart(request, response, productId, quantity);
+            addToCart(request, productId, quantity);
         } catch (OutOfStockException exception) {
             setErrorAndForward(request, response, "Invalid quantity " +
                     exception.getQuantity() +

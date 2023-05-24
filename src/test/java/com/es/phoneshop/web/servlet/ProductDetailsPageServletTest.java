@@ -1,10 +1,10 @@
-package com.es.phoneshop.web;
+package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.exception.ProductNotFoundException;
-import com.es.phoneshop.service.iml.DefaultCartService;
 import com.es.phoneshop.model.product.Product;
+import com.es.phoneshop.service.impl.DefaultCartService;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-
 import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,7 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProductDetailsPagePageServletTest {
+public class ProductDetailsPageServletTest {
     private static final Long invalidProductId = -45L;
     private static final Long productId = 1L;
     private final ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
@@ -81,14 +80,16 @@ public class ProductDetailsPagePageServletTest {
     @Test
     public void testDoPostSuccess() throws ServletException, IOException, OutOfStockException {
         int initialQuantity = 5;
-        String redirectLink = request.getContextPath() + "/products/" + productId + "?message=Product added to cart successfully";
         when(request.getPathInfo()).thenReturn("/" + productId);
         when(request.getParameter("quantity")).thenReturn(String.valueOf(initialQuantity));
 
         servlet.doPost(request, response);
 
         verify(cartService).add(cartService.getCart(request.getSession()), productId, initialQuantity);
-        verify(response).sendRedirect(redirectLink);
+        verify(response).sendRedirect(request.getContextPath() +
+                "/products/" +
+                productId +
+                "?message=Product added to cart successfully");
         verify(request, never()).setAttribute(eq("error"), any());
     }
 

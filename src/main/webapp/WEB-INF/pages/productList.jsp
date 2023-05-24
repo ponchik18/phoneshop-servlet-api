@@ -57,7 +57,7 @@
                 </td>
                 <td class="price" onclick="showPriceHistory(this)">
                     <fmt:formatNumber value="${product.price}" type="currency"
-                                      currencySymbol="${product.currency.symbol}" />
+                                      currencySymbol="${product.currency.symbol}"/>
                     <div class="popup">
                         <div class="popup-content">
                             <h2 style="text-align: center;">Price history</h2>
@@ -79,7 +79,12 @@
                         </div>
                     </div>
                 </td>
-                <td><button form="addItemToCart/${product.id}" formaction="${pageContext.request.contextPath}/add-to-cart/${product.id}">Add to cart</button></td>
+                <td>
+                    <button form="addItemToCart/${product.id}"
+                            formaction="${pageContext.request.contextPath}/add-to-cart/${product.id}?sort=${param.sort}&order=${param.order}&search=${param.search}">
+                        Add to cart
+                    </button>
+                </td>
             </tr>
             <form id="addItemToCart/${product.id}" method="post"></form>
         </c:forEach>
@@ -115,7 +120,7 @@
 
         window.addEventListener("click", function (event) {
 
-            if(event.target === modal) {
+            if (event.target === modal) {
                 modal.style.display = "none";
             }
         })

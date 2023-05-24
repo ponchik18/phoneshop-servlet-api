@@ -1,4 +1,4 @@
-package com.es.phoneshop.service.iml;
+package com.es.phoneshop.service.impl;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
@@ -17,7 +17,7 @@ public class DefaultCartService implements CartService {
 
     public static final String CART_SESSION_NAME = DefaultCartService.class.getName() + ".class";
     private volatile static DefaultCartService instance;
-    private final ProductDao productDao;
+    private ProductDao productDao;
 
 
     private DefaultCartService() {

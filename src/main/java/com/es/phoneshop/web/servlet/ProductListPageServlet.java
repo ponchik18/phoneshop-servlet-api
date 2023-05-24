@@ -1,11 +1,11 @@
-package com.es.phoneshop.web;
+package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.dto.SortField;
 import com.es.phoneshop.dto.SortOrder;
 import com.es.phoneshop.service.ProductsTrackingHistoryService;
-import com.es.phoneshop.service.iml.DefaultProductsTrackingHistoryService;
+import com.es.phoneshop.service.impl.DefaultProductsTrackingHistoryService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -49,6 +49,5 @@ public class ProductListPageServlet extends HttpServlet {
                 Optional.ofNullable(sortOrder).map(SortOrder::valueOf).orElse(null)));
         request.getRequestDispatcher("/WEB-INF/pages/productList.jsp").forward(request, response);
     }
-
 
 }
