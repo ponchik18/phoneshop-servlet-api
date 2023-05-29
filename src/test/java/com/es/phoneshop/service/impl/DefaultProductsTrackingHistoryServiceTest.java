@@ -1,7 +1,7 @@
-package com.es.phoneshop.model.history;
+package com.es.phoneshop.service.impl;
 
+import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.model.product.Product;
-import com.es.phoneshop.service.iml.DefaultProductsTrackingHistoryService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,15 +32,15 @@ public class DefaultProductsTrackingHistoryServiceTest {
 
     @Test
     public void testAddToViewed() {
-        List<Product> expextedList = new LinkedList<>();
+        List<Product> expectedList = new LinkedList<>();
         for (int i = testProducts.size() - MAX_SIZE_HISTORY_LIST; i < testProducts.size(); i++) {
-            expextedList.add(testProducts.get(i));
+            expectedList.add(testProducts.get(i));
         }
 
         testProducts.forEach(testProducts ->
                 historyService.addToViewed(productHistory, testProducts, "sessionId"));
 
-        assertEquals(expextedList, productHistory.getProducts());
+        assertEquals(expectedList, productHistory.getProducts());
     }
 
 }

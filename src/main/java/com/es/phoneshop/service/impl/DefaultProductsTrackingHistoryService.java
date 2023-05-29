@@ -1,4 +1,4 @@
-package com.es.phoneshop.service.iml;
+package com.es.phoneshop.service.impl;
 
 import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.model.product.Product;

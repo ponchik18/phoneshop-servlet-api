@@ -1,3 +1,4 @@
+<%@ page import="javafx.util.Pair" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -9,6 +10,16 @@
     <p>
         Welcome to Expert-Soft training!
     </p>
+    <c:if test="${not empty  param.message}">
+        <div class="success">
+                ${param.message}
+        </div>
+    </c:if>
+    <c:if test="${not empty param.error}">
+        <div class="error">
+            There was some error while updating quantity
+        </div>
+    </c:if>
     <form>
         <input type="text" name="search" value="${param.search}">
         <button type="submit">Search</button>
@@ -22,9 +33,11 @@
                 <tags:sortLink order="asc" sort="description"/>
                 <tags:sortLink order="desc" sort="description"/>
             </td>
+            <td>Quantity</td>
             <td>Price
                     <tags:sortLink order="asc" sort="price"/>
                     <tags:sortLink order="desc" sort="price"/>
+            <td></td>
         </tr>
         </thead>
         <c:forEach var="product" items="${products}">
@@ -33,9 +46,18 @@
                     <img class="product-tile" src="${product.imageUrl}">
                 </td>
                 <td><a href="${pageContext.request.contextPath}/products/${product.id}">${product.description}</a></td>
+                <td>
+                    <input class="align-right" value="1" name="quantity" form="addItemToCart/${product.id}">
+                    <c:if test="${not empty param.error and param.productIdWithError eq product.id}">
+                        <br>
+                        <span class="error">
+                                ${param.error}
+                        </span>
+                    </c:if>
+                </td>
                 <td class="price" onclick="showPriceHistory(this)">
                     <fmt:formatNumber value="${product.price}" type="currency"
-                                      currencySymbol="${product.currency.symbol}" />
+                                      currencySymbol="${product.currency.symbol}"/>
                     <div class="popup">
                         <div class="popup-content">
                             <h2 style="text-align: center;">Price history</h2>
@@ -57,7 +79,14 @@
                         </div>
                     </div>
                 </td>
+                <td>
+                    <button form="addItemToCart/${product.id}"
+                            formaction="${pageContext.request.contextPath}/add-to-cart/${product.id}?sort=${param.sort}&order=${param.order}&search=${param.search}">
+                        Add to cart
+                    </button>
+                </td>
             </tr>
+            <form id="addItemToCart/${product.id}" method="post"></form>
         </c:forEach>
     </table>
     <c:if test="${productHistory.size()>0}">
@@ -91,7 +120,7 @@
 
         window.addEventListener("click", function (event) {
 
-            if(event.target === modal) {
+            if (event.target === modal) {
                 modal.style.display = "none";
             }
         })
