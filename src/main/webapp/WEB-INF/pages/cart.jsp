@@ -4,7 +4,7 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <jsp:useBean id="cart" type="com.es.phoneshop.model.cart.Cart" scope="request"/>
-<tags:master pageTitle="Product List">
+<tags:master pageTitle="Cart">
     <p>
         Cart: ${cart.items}
     </p>
@@ -72,6 +72,11 @@
         </table>
         <p>
             <button type="submit">Update</button>
+        </p>
+    </form>
+    <form action="${pageContext.request.contextPath}/checkout">
+        <p>
+            <button>Order</button>
         </p>
     </form>
     <form id="deleteCartItem" method="post"></form>

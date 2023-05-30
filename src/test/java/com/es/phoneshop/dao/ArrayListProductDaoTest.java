@@ -1,10 +1,10 @@
 package com.es.phoneshop.dao;
 
-import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.dto.SortField;
 import com.es.phoneshop.dto.SortOrder;
-import com.es.phoneshop.exception.ProductNotFoundException;
+import com.es.phoneshop.exception.NoSuchElementException;
+import com.es.phoneshop.exception.NoSuchProductException;
 import com.es.phoneshop.model.product.Product;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class ArrayListProductDaoTest {
     public void testGetProduct() {
         Product product = productDao.findProducts("", null, null).stream().findAny().get();
 
-        Product searchProduct = productDao.getProduct(product.getId());
+        Product searchProduct = productDao.getItem(product.getId());
 
         assertEquals(product, searchProduct);
     }
@@ -109,11 +109,11 @@ public class ArrayListProductDaoTest {
     }
 
     @Test
-    public void testSaveProductById() throws ProductNotFoundException {
+    public void testSaveProductById() throws NoSuchElementException {
         Product product = products.get(0);
 
         productDao.save(product);
-        Product searchProduct = productDao.getProduct(product.getId());
+        Product searchProduct = productDao.getItem(product.getId());
 
         assertEquals(product, searchProduct);
     }
@@ -123,15 +123,15 @@ public class ArrayListProductDaoTest {
         productDao.save(null);
     }
 
-    @Test(expected = ProductNotFoundException.class)
+    @Test(expected = NoSuchProductException.class)
     public void testDeleteProduct() {
         Product product = products.get(0);
         productDao.save(product);
-        Long id = product.getId();
+        UUID id = product.getId();
 
         productDao.delete(id);
 
-        productDao.getProduct(id);
+        productDao.getItem(id);
     }
 
     @Test

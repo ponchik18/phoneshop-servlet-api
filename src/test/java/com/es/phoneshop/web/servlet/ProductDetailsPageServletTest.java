@@ -1,8 +1,8 @@
 package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
+import com.es.phoneshop.exception.NoSuchElementException;
 import com.es.phoneshop.exception.OutOfStockException;
-import com.es.phoneshop.exception.ProductNotFoundException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.impl.DefaultCartService;
 import jakarta.servlet.RequestDispatcher;
@@ -19,6 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,8 +27,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductDetailsPageServletTest {
-    private static final Long invalidProductId = -45L;
-    private static final Long productId = 1L;
+    private static final UUID invalidProductId = UUID.randomUUID();
+    private static final UUID productId = UUID.randomUUID();
     private final ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
     @Mock
     private HttpServletRequest request;
@@ -61,7 +62,7 @@ public class ProductDetailsPageServletTest {
     public void testDoGetValidProductNumber() throws ServletException, IOException {
         Product product = new Product();
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(productDao.getProduct(productId)).thenReturn(product);
+        when(productDao.getItem(productId)).thenReturn(product);
 
         servlet.doGet(request, response);
 
@@ -69,10 +70,10 @@ public class ProductDetailsPageServletTest {
         verify(request).setAttribute(eq("product"), eq(product));
     }
 
-    @Test(expected = ProductNotFoundException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testDoGetInvalidProductNumber() throws ServletException, IOException {
         when(request.getPathInfo()).thenReturn("/" + invalidProductId);
-        when(productDao.getProduct(invalidProductId)).thenThrow(new ProductNotFoundException(invalidProductId));
+        when(productDao.getItem(invalidProductId)).thenThrow(new NoSuchElementException(invalidProductId));
 
         servlet.doGet(request, response);
     }

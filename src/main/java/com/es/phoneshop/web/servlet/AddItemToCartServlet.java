@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.UUID;
 
 public class AddItemToCartServlet extends HttpServlet {
 
@@ -39,8 +40,9 @@ public class AddItemToCartServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long productId = Long.parseLong(request.getPathInfo().substring(1));
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        UUID productId = UUID.fromString(request.getPathInfo().substring(1));
         if (isSuccessfullyAddedToCart(request, response, productId)) {
             String sort = request.getParameter("sort");
             String order = request.getParameter("order");
@@ -56,7 +58,8 @@ public class AddItemToCartServlet extends HttpServlet {
         }
     }
 
-    private void setErrorAndRedirect(HttpServletRequest request, HttpServletResponse response, Long productId, String errorMessage)
+    private void setErrorAndRedirect(HttpServletRequest request, HttpServletResponse response,
+                                     UUID productId, String errorMessage)
             throws ServletException, IOException {
         request.setAttribute("productIdWithError", productId);
         request.setAttribute("error", errorMessage);
@@ -74,12 +77,13 @@ public class AddItemToCartServlet extends HttpServlet {
         response.sendRedirect(redirectLink);
     }
 
-    private boolean isSuccessfullyAddedToCart(HttpServletRequest request, HttpServletResponse response, Long productId)
+    private boolean isSuccessfullyAddedToCart(HttpServletRequest request, HttpServletResponse response, UUID productId)
             throws ServletException, IOException {
         int quantity;
 
         try {
-            quantity = quantityRetrieverService.getProductQuantity(request.getParameter("quantity"), request.getLocale());
+            quantity = quantityRetrieverService.getProductQuantity(request.getParameter("quantity"),
+                    request.getLocale());
         } catch (ParseException exception) {
             setErrorAndRedirect(request, response, productId, "Not a number");
             return false;
@@ -99,7 +103,7 @@ public class AddItemToCartServlet extends HttpServlet {
         return true;
     }
 
-    private void addToCart(HttpServletRequest request, HttpServletResponse response, Long productId, int quantity)
+    private void addToCart(HttpServletRequest request, HttpServletResponse response, UUID productId, int quantity)
             throws OutOfStockException {
         Cart cart = cartService.getCart(request.getSession());
         cartService.add(cart, productId, quantity);

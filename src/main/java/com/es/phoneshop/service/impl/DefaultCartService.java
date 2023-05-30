@@ -2,8 +2,8 @@ package com.es.phoneshop.service.impl;
 
 import com.es.phoneshop.dao.ProductDao;
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
+import com.es.phoneshop.exception.NoSuchElementException;
 import com.es.phoneshop.exception.OutOfStockException;
-import com.es.phoneshop.exception.ProductNotFoundException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.cart.CartItem;
 import com.es.phoneshop.model.product.Product;
@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 public class DefaultCartService implements CartService {
 
@@ -48,8 +49,8 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public void add(Cart cart, Long productId, int quantity) throws OutOfStockException {
-        Product product = productDao.getProduct(productId);
+    public void add(Cart cart, UUID productId, int quantity) throws OutOfStockException {
+        Product product = productDao.getItem(productId);
 
         synchronized (cart) {
             Optional<CartItem> optionalFoundCartItem = findCartItem(cart, productId);
@@ -64,8 +65,13 @@ public class DefaultCartService implements CartService {
     }
 
     @Override
-    public void update(Cart cart, Long productId, int quantity) throws OutOfStockException {
-        Product product = productDao.getProduct(productId);
+    public void destroyCart(HttpSession session) {
+        session.removeAttribute(CART_SESSION_NAME);
+    }
+
+    @Override
+    public void update(Cart cart, UUID productId, int quantity) throws OutOfStockException {
+        Product product = productDao.getItem(productId);
 
         synchronized (cart) {
             Optional<CartItem> optionalFoundCartItem = findCartItem(cart, productId);
@@ -74,13 +80,13 @@ public class DefaultCartService implements CartService {
                 optionalFoundCartItem.get().setQuantity(quantity);
                 recalculateCart(cart);
             } else {
-                throw new ProductNotFoundException(productId);
+                throw new NoSuchElementException(productId);
             }
         }
     }
 
     @Override
-    public void delete(Cart cart, Long productId) {
+    public void delete(Cart cart, UUID productId) {
         synchronized (cart) {
             cart.getItems().stream()
                     .filter(cartItem -> productId.equals(cartItem.getProduct().getId()))
@@ -107,7 +113,7 @@ public class DefaultCartService implements CartService {
         }
     }
 
-    private Optional<CartItem> findCartItem(Cart cart, Long productId) {
+    private Optional<CartItem> findCartItem(Cart cart, UUID productId) {
         return cart.getItems().stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .filter(cartItem -> cartItem.getProduct().getStock() > 0)

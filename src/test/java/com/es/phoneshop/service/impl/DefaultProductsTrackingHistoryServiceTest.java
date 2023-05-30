@@ -6,10 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,7 +22,7 @@ public class DefaultProductsTrackingHistoryServiceTest {
     public void setup() {
         for (int i = 0; i < 5; i++) {
             Product product = new Product("test" + i, "Test Product " + i, new BigDecimal(100), Currency.getInstance("USD"), MAX_STOCK, "https://example.com/test.jpg", null);
-            product.setId(Integer.toUnsignedLong(i));
+            product.setId(UUID.randomUUID());
             testProducts.add(product);
         }
     }

@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class DeleteCartItemServletTest {
-    private static final Long productId = 1L;
+    private static final UUID productId = UUID.randomUUID();
     private final DeleteCartItemServlet servlet = new DeleteCartItemServlet();
     @Mock
     private HttpServletRequest request;

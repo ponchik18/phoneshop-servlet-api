@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 public class CartPageServlet extends HttpServlet {
@@ -52,15 +53,17 @@ public class CartPageServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String[] productsId = request.getParameterValues("productId");
         String[] quantities = request.getParameterValues("quantity");
         Locale locale = request.getLocale();
         Cart cart = cartService.getCart(request.getSession());
-        Map<Long, String> errors = new HashMap<>();
+        Map<UUID, String> errors = new HashMap<>();
 
         IntStream.range(0, productsId.length)
-                .forEach(i ->validateUpdateCartItem(cart, Long.valueOf(productsId[i]), errors, locale, quantities[i]));
+                .forEach(i -> validateUpdateCartItem(cart, UUID.fromString(productsId[i]), errors,
+                        locale, quantities[i]));
 
         if (errors.size() > 0) {
             request.setAttribute("errors", errors);
@@ -72,7 +75,8 @@ public class CartPageServlet extends HttpServlet {
         }
     }
 
-    private void validateUpdateCartItem(Cart cart, Long productId, Map<Long, String> errors, Locale locale, String quantityString) {
+    private void validateUpdateCartItem(Cart cart, UUID productId, Map<UUID, String> errors,
+                                        Locale locale, String quantityString) {
         try {
             int quantity = quantityRetrieverService.getProductQuantity(quantityString, locale);
             cartService.update(cart, productId, quantity);

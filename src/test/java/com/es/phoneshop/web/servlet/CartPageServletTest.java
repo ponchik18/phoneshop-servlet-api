@@ -18,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -68,7 +69,8 @@ public class CartPageServletTest {
     public void testDoPostSuccessfulUpdate() throws ServletException, IOException, OutOfStockException {
         when(cartService.getCart(request.getSession())).thenReturn(new Cart());
         Cart cart = cartService.getCart(request.getSession());
-        when(request.getParameterValues("productId")).thenReturn(new String[]{"1", "2", "3"});
+        when(request.getParameterValues("productId")).thenReturn(new String[]{UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), UUID.randomUUID().toString()});
         when(request.getParameterValues("quantity")).thenReturn(new String[]{"1", "1", "1"});
 
         servlet.doPost(request, response);
@@ -81,7 +83,8 @@ public class CartPageServletTest {
     public void testDoPostWithError() throws ServletException, IOException {
         when(cartService.getCart(request.getSession())).thenReturn(new Cart());
         Cart cart = cartService.getCart(request.getSession());
-        when(request.getParameterValues("productId")).thenReturn(new String[]{"1", "2", "3"});
+        when(request.getParameterValues("productId")).thenReturn(new String[]{UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(), UUID.randomUUID().toString()});
         when(request.getParameterValues("quantity")).thenReturn(new String[]{"asd", "xcv", "qwe"});
 
         servlet.doPost(request, response);
