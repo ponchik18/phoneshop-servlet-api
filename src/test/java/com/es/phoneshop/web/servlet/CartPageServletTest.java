@@ -3,6 +3,7 @@ package com.es.phoneshop.web.servlet;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.service.CartService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -60,18 +61,18 @@ public class CartPageServletTest {
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("cart"), eq(cart));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.CART), eq(cart));
         verify(requestDispatcher).forward(request, response);
-        verify(request, never()).setAttribute(eq("errors"), any());
+        verify(request, never()).setAttribute(eq(ServletConstant.RequestParameterName.ERRORS), any());
     }
 
     @Test
     public void testDoPostSuccessfulUpdate() throws ServletException, IOException, OutOfStockException {
         when(cartService.getCart(request.getSession())).thenReturn(new Cart());
         Cart cart = cartService.getCart(request.getSession());
-        when(request.getParameterValues("productId")).thenReturn(new String[]{UUID.randomUUID().toString(),
+        when(request.getParameterValues(ServletConstant.RequestParameterName.PRODUCT_ID)).thenReturn(new String[]{UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(), UUID.randomUUID().toString()});
-        when(request.getParameterValues("quantity")).thenReturn(new String[]{"1", "1", "1"});
+        when(request.getParameterValues(ServletConstant.RequestParameterName.QUANTITY)).thenReturn(new String[]{"1", "1", "1"});
 
         servlet.doPost(request, response);
 
@@ -83,12 +84,12 @@ public class CartPageServletTest {
     public void testDoPostWithError() throws ServletException, IOException {
         when(cartService.getCart(request.getSession())).thenReturn(new Cart());
         Cart cart = cartService.getCart(request.getSession());
-        when(request.getParameterValues("productId")).thenReturn(new String[]{UUID.randomUUID().toString(),
+        when(request.getParameterValues(ServletConstant.RequestParameterName.PRODUCT_ID)).thenReturn(new String[]{UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(), UUID.randomUUID().toString()});
-        when(request.getParameterValues("quantity")).thenReturn(new String[]{"asd", "xcv", "qwe"});
+        when(request.getParameterValues(ServletConstant.RequestParameterName.QUANTITY)).thenReturn(new String[]{"asd", "xcv", "qwe"});
 
         servlet.doPost(request, response);
 
-        verify(request).setAttribute(eq("errors"), any());
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.ERRORS), any());
     }
 }

@@ -6,6 +6,7 @@ import com.es.phoneshop.dto.SortField;
 import com.es.phoneshop.dto.SortOrder;
 import com.es.phoneshop.service.ProductsTrackingHistoryService;
 import com.es.phoneshop.service.impl.DefaultProductsTrackingHistoryService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -38,16 +39,18 @@ public class ProductListPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String search = request.getParameter("search");
-        String sortField = request.getParameter("sort");
-        String sortOrder = request.getParameter("order");
+        String search = request.getParameter(ServletConstant.RequestParameterName.SEARCH);
+        String sortField = request.getParameter(ServletConstant.RequestParameterName.SORT);
+        String sortOrder = request.getParameter(ServletConstant.RequestParameterName.ORDER);
 
-        request.setAttribute("productHistory", productsTrackingHistory.getProductHistory(request.getSession())
-                .getProducts());
-        request.setAttribute("products", productDao.findProducts(search,
+        request.setAttribute(
+                ServletConstant.RequestParameterName.PRODUCT_HISTORY,
+                productsTrackingHistory.getProductHistory(request.getSession()
+                        ).getProducts());
+        request.setAttribute(ServletConstant.RequestParameterName.PRODUCTS, productDao.findProducts(search,
                 Optional.ofNullable(sortField).map(SortField::valueOf).orElse(null),
                 Optional.ofNullable(sortOrder).map(SortOrder::valueOf).orElse(null)));
-        request.getRequestDispatcher("/WEB-INF/pages/productList.jsp").forward(request, response);
+        request.getRequestDispatcher(ServletConstant.PagesLocation.PRODUCTS_LIST_PAGE).forward(request, response);
     }
 
 }

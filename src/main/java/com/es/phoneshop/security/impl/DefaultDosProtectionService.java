@@ -3,11 +3,11 @@ package com.es.phoneshop.security.impl;
 import com.es.phoneshop.security.DosProtectionService;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultDosProtectionService implements DosProtectionService {
 
@@ -36,16 +36,16 @@ public class DefaultDosProtectionService implements DosProtectionService {
 
     @Override
     public boolean isAllowed(String ip) {
-        Long count = countMap.get(ip);
-        if (Objects.isNull(count)) {
-            count = 1L;
-        } else {
-            if (count > THRESHOLD) {
-                return false;
+        AtomicBoolean isAllowed = new AtomicBoolean(true);
+        countMap.computeIfPresent(ip, (key, count) -> {
+            if (count < THRESHOLD) {
+                return count + 1;
+            } else {
+                isAllowed.set(false);
+                return count;
             }
-            count++;
-        }
-        countMap.put(ip, count);
-        return true;
+        });
+        countMap.computeIfAbsent(ip, k->1L);
+        return isAllowed.get();
     }
 }

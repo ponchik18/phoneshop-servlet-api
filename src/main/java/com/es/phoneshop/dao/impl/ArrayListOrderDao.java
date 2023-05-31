@@ -11,7 +11,7 @@ public class ArrayListOrderDao extends GenericArrayListDao<Order> implements Ord
     private volatile static ArrayListOrderDao instance;
 
     private ArrayListOrderDao() {
-        super();
+        super(Order.class);
     }
 
     public static ArrayListOrderDao getInstance() {
@@ -23,18 +23,5 @@ public class ArrayListOrderDao extends GenericArrayListDao<Order> implements Ord
             }
         }
         return instance;
-    }
-
-    @Override
-    public Order getItem(UUID id) throws NoSuchOrderException {
-        lock.readLock().lock();
-        try {
-            return items.stream()
-                    .filter(product -> id.equals(product.getId()))
-                    .findAny()
-                    .orElseThrow(() -> new NoSuchOrderException(id));
-        } finally {
-            lock.readLock().unlock();
-        }
     }
 }

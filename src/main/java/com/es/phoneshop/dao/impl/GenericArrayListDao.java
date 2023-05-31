@@ -1,8 +1,10 @@
 package com.es.phoneshop.dao.impl;
 
 import com.es.phoneshop.dao.DAO;
-import com.es.phoneshop.exception.NoSuchElementException;
-import com.es.phoneshop.model.IBean;
+import com.es.phoneshop.exception.NoSuchOrderException;
+import com.es.phoneshop.exception.NoSuchProductException;
+import com.es.phoneshop.exception.factory.NoSuchElementExceptionFactory;
+import com.es.phoneshop.model.UniqueItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,32 +13,20 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class GenericArrayListDao<Bean extends IBean> implements DAO<Bean> {
+public class GenericArrayListDao<Item extends UniqueItem> implements DAO<Item> {
 
     protected final ReadWriteLock lock = new ReentrantReadWriteLock();
-    protected final List<Bean> items;
+    protected final List<Item> items;
+    private Class<Item> beanClass;
+    private final NoSuchElementExceptionFactory exceptionFactory = new NoSuchElementExceptionFactory();
 
-    protected GenericArrayListDao() {
+    protected GenericArrayListDao(Class<Item> beanClass) {
         items = new ArrayList<>();
+        this.beanClass = beanClass;
     }
-
-
-    public Bean getItem(UUID id) throws NoSuchElementException {
-        lock.readLock().lock();
-        try {
-            return items.stream()
-                    .filter(product -> id.equals(product.getId()))
-                    .findAny()
-                    .orElseThrow(() -> new NoSuchElementException(id));
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-
 
     @Override
-    public List<Bean> getAllItem() {
+    public List<Item> getAllItem() {
         lock.readLock().lock();
         try{
             return items;
@@ -47,7 +37,7 @@ public class GenericArrayListDao<Bean extends IBean> implements DAO<Bean> {
     }
 
     @Override
-    public void save(Bean item) {
+    public void save(Item item) {
         Objects.requireNonNull(item, "We can't add null!");
         lock.writeLock().lock();
         try {
@@ -68,6 +58,19 @@ public class GenericArrayListDao<Bean extends IBean> implements DAO<Bean> {
                     .ifPresent(items::remove);
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Item getItem(UUID id) throws NoSuchOrderException {
+        lock.readLock().lock();
+        try {
+            return items.stream()
+                    .filter(product -> id.equals(product.getId()))
+                    .findAny()
+                    .orElseThrow(() -> exceptionFactory.getException(beanClass,id));
+        } finally {
+            lock.readLock().unlock();
         }
     }
 }

@@ -8,6 +8,7 @@ import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.QuantityRetrieverService;
 import com.es.phoneshop.service.impl.DefaultCartService;
 import com.es.phoneshop.service.impl.DefaultQuantityRetrieverService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -48,15 +49,15 @@ public class CartPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Cart cart = cartService.getCart(request.getSession());
-        request.setAttribute("cart", cart);
-        request.getRequestDispatcher("/WEB-INF/pages/cart.jsp").forward(request, response);
+        request.setAttribute(ServletConstant.RequestParameterName.CART, cart);
+        request.getRequestDispatcher(ServletConstant.PagesLocation.CART_PAGE).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] productsId = request.getParameterValues("productId");
-        String[] quantities = request.getParameterValues("quantity");
+        String[] productsId = request.getParameterValues(ServletConstant.RequestParameterName.PRODUCT_ID);
+        String[] quantities = request.getParameterValues(ServletConstant.RequestParameterName.QUANTITY);
         Locale locale = request.getLocale();
         Cart cart = cartService.getCart(request.getSession());
         Map<UUID, String> errors = new HashMap<>();
@@ -66,7 +67,7 @@ public class CartPageServlet extends HttpServlet {
                         locale, quantities[i]));
 
         if (errors.size() > 0) {
-            request.setAttribute("errors", errors);
+            request.setAttribute(ServletConstant.RequestParameterName.ERRORS, errors);
             doGet(request, response);
         } else {
             response.sendRedirect(request.getContextPath() +
@@ -81,7 +82,7 @@ public class CartPageServlet extends HttpServlet {
             int quantity = quantityRetrieverService.getProductQuantity(quantityString, locale);
             cartService.update(cart, productId, quantity);
         } catch (ParseException exception) {
-            errors.put(productId, "Not a number");
+            errors.put(productId, ServletConstant.Message.ERROR_NOT_A_NUMBER);
         } catch (OutOfStockException exception) {
             errors.put(productId, "Invalid quantity " +
                     exception.getQuantity() +

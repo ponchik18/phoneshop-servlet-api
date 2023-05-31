@@ -18,6 +18,7 @@ public class ArrayListOrderDaoTest {
     public void setup() {
         orderDao = ArrayListOrderDao.getInstance();
         orderDao.save(new Order());
+
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.es.phoneshop.model.order.Order;
 import com.es.phoneshop.model.order.PaymentMethod;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.OrderService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -68,7 +69,7 @@ public class OrderOverviewPageServletTest {
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("order"), eq(order));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.ORDER), eq(order));
         verify(requestDispatcher).forward(request, response);
     }
 

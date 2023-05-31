@@ -6,6 +6,7 @@ import com.es.phoneshop.model.order.Order;
 import com.es.phoneshop.model.order.PaymentMethod;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.OrderService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -35,9 +36,6 @@ public class CheckoutPageServletTest {
     private HttpServletRequest request;
     @Mock
     private HttpServletResponse response;
-    @Mock
-
-    private HttpSession session;
     @Mock
     private RequestDispatcher requestDispatcher;
     @Mock
@@ -75,14 +73,13 @@ public class CheckoutPageServletTest {
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("order"), eq(order));
-        verify(request).setAttribute(eq("paymentMethods"), eq(methods));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.ORDER), eq(order));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.PAYMENT_METHODS), eq(methods));
         verify(requestDispatcher).forward(request, response);
     }
 
     @Test
     public void testDoPostSuccessfulCreateOrder() throws ServletException, IOException, OutOfStockException {
-        Order order = orderService.getOrder(cartService.getCart(request.getSession()));
         when(request.getParameter("firstname")).thenReturn("test");
         when(request.getParameter("lastname")).thenReturn("test");
         when(request.getParameter("deliveryAddress")).thenReturn("test");
@@ -93,13 +90,12 @@ public class CheckoutPageServletTest {
         servlet.doPost(request, response);
 
         verify(response).sendRedirect(any());
-        verify(request, never()).setAttribute(eq("errors"), any());
+        verify(request, never()).setAttribute(eq(ServletConstant.RequestParameterName.ERRORS), any());
     }
 
     @Test
     public void testDoPostUnsuccessfulCreateOrderInvalidFormat()
             throws ServletException, IOException, OutOfStockException {
-        Order order = orderService.getOrder(cartService.getCart(request.getSession()));
         when(request.getParameter("firstname")).thenReturn("test");
         when(request.getParameter("lastname")).thenReturn("test");
         when(request.getParameter("deliveryAddress")).thenReturn("test");
@@ -110,7 +106,7 @@ public class CheckoutPageServletTest {
         servlet.doPost(request, response);
 
         verify(requestDispatcher).forward(request, response);
-        verify(request).setAttribute(eq("errors"), any());
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.ERRORS), any());
     }
 
 }

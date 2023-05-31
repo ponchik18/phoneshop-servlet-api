@@ -70,18 +70,8 @@
           <webApp>
             <contextPath>/phoneshop</contextPath>
           </webApp>
-          <webAppConfig implementation="org.mortbay.jetty.plugin.JettyWebAppContext">
-            <defaultsDescriptor>${project.build.outputDirectory}/META-INF/webdefault.xml</defaultsDescriptor>
-            <contextPath>src/main/resources/jetty.xml</contextPath>
-            <sessionHandler implementation="org.eclipse.jetty.server.session.SessionHandler">
-              <sessionManager implementation="org.eclipse.jetty.server.session.HashSessionManager">
-                <storeDirectory>${basedir}/target/jetty-sessions</storeDirectory>
-                <idleSavePeriod>1</idleSavePeriod>
-              </sessionManager>
-            </sessionHandler>
-          </webAppConfig>
+<!--          <contextXml>src/main/resources/jetty.xml</contextXml>-->
         </configuration>
-
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -3,6 +3,7 @@ package com.es.phoneshop.web.servlet;
 import com.es.phoneshop.model.order.Order;
 import com.es.phoneshop.service.OrderService;
 import com.es.phoneshop.service.impl.DefaultOrderService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -29,8 +30,8 @@ public class OrderOverviewPageServlet extends HttpServlet {
         UUID orderId = UUID.fromString(request.getPathInfo().substring(1));
         Order order = orderService.getOrder(orderId);
 
-        request.setAttribute("order", order);
-        request.getRequestDispatcher("/WEB-INF/pages/orderOverview.jsp").forward(request, response);
+        request.setAttribute(ServletConstant.RequestParameterName.ORDER, order);
+        request.getRequestDispatcher(ServletConstant.PagesLocation.OVERVIEW_PAGE).forward(request, response);
     }
 
 }

@@ -15,7 +15,7 @@ public class ArrayListProductDao extends GenericArrayListDao<Product> implements
     private volatile static ArrayListProductDao instance;
 
     private ArrayListProductDao() {
-        super();
+        super(Product.class);
     }
 
     public static ArrayListProductDao getInstance() {
@@ -48,18 +48,7 @@ public class ArrayListProductDao extends GenericArrayListDao<Product> implements
         }
     }
 
-    @Override
-    public Product getItem(UUID id) throws NoSuchProductException {
-        lock.readLock().lock();
-        try {
-            return items.stream()
-                    .filter(product -> id.equals(product.getId()))
-                    .findAny()
-                    .orElseThrow(() -> new NoSuchProductException(id));
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
+
 
     private boolean containsAnyWord(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)

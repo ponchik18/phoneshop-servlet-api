@@ -1,13 +1,13 @@
 package com.es.phoneshop.model.order;
 
-import com.es.phoneshop.model.IBean;
+import com.es.phoneshop.model.UniqueItem;
 import com.es.phoneshop.model.cart.Cart;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class Order extends Cart implements IBean {
+public class Order extends Cart implements UniqueItem {
 
     private UUID id;
     private BigDecimal subtotal;

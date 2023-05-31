@@ -5,8 +5,11 @@ import com.es.phoneshop.model.order.Order;
 import com.es.phoneshop.model.order.PaymentMethod;
 import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.OrderService;
+import com.es.phoneshop.service.ValidateParameterService;
 import com.es.phoneshop.service.impl.DefaultCartService;
 import com.es.phoneshop.service.impl.DefaultOrderService;
+import com.es.phoneshop.service.impl.DefaultValidateParameterService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -24,14 +27,10 @@ import java.util.function.Consumer;
 
 public class CheckoutPageServlet extends HttpServlet {
 
-    private final static String PHONE_REGEX = "\\(\\d{3}\\) \\d{3}-\\d{4}";
-    private final static String ERROR_VALUE_IS_REQUIRED = "Value is required!";
-
-    private final static String ERROR_INVALID_FORMAT = "Invalid format!";
-
-    private final static String ERROR_INVALID_DATE = "Please, don't select previous date!";
     private CartService cartService;
     private OrderService orderService;
+
+    private ValidateParameterService validateParameterService;
 
     public void setCartService(CartService cartService) {
         this.cartService = cartService;
@@ -42,6 +41,7 @@ public class CheckoutPageServlet extends HttpServlet {
         super.init(config);
         cartService = DefaultCartService.getInstance();
         orderService = DefaultOrderService.getInstance();
+        validateParameterService = DefaultValidateParameterService.getInstance();
     }
 
     @Override
@@ -51,9 +51,9 @@ public class CheckoutPageServlet extends HttpServlet {
         Order order = orderService.getOrder(cart);
         List<PaymentMethod> paymentMethods = orderService.getPaymentMethods();
 
-        request.setAttribute("paymentMethods", paymentMethods);
-        request.setAttribute("order", order);
-        request.getRequestDispatcher("/WEB-INF/pages/checkout.jsp").forward(request, response);
+        request.setAttribute(ServletConstant.RequestParameterName.PAYMENT_METHODS, paymentMethods);
+        request.setAttribute(ServletConstant.RequestParameterName.ORDER, order);
+        request.getRequestDispatcher(ServletConstant.PagesLocation.CHECKOUT_PAGE).forward(request, response);
     }
 
     @Override
@@ -63,12 +63,15 @@ public class CheckoutPageServlet extends HttpServlet {
         Order order = orderService.getOrder(cart);
         Map<String, String> errors = new HashMap<>();
 
-        setRequiredStringParameter(errors, "firstname", request, order::setFirstname);
-        setRequiredStringParameter(errors, "lastname", request, order::setLastname);
-        setRequiredStringParameter(errors, "deliveryAddress", request, order::setDeliveryAddress);
-        setRequiredPhoneParameter(errors, request, order);
-        setRequiredDeliveryDateParameter(errors, request, order);
-        setRequiredPaymentMethodParameter(errors, request, order);
+        validateParameterService.setRequiredStringParameter(errors, ServletConstant.RequestParameterName.FIRST_NAME,
+                request, order::setFirstname);
+        validateParameterService.setRequiredStringParameter(errors, ServletConstant.RequestParameterName.LAST_NAME,
+                request, order::setLastname);
+        validateParameterService.setRequiredStringParameter(errors, ServletConstant.RequestParameterName.DELIVERY_ADDRESS,
+                request, order::setDeliveryAddress);
+        validateParameterService.setRequiredPhoneParameter(errors, request, order::setPhone);
+        validateParameterService.setRequiredDeliveryDateParameter(errors, request, order::setDeliveryDate);
+        validateParameterService.setRequiredPaymentMethodParameter(errors, request, order::setPaymentMethod);
 
         handleError(request, response, errors, order);
     }
@@ -79,68 +82,15 @@ public class CheckoutPageServlet extends HttpServlet {
         if (errors.size() > 0) {
             List<PaymentMethod> paymentMethods = orderService.getPaymentMethods();
 
-            request.setAttribute("paymentMethods", paymentMethods);
-            request.setAttribute("errors", errors);
-            request.setAttribute("order", order);
-            request.getRequestDispatcher("/WEB-INF/pages/checkout.jsp").forward(request, response);
+            request.setAttribute(ServletConstant.RequestParameterName.PAYMENT_METHODS, paymentMethods);
+            request.setAttribute(ServletConstant.RequestParameterName.ERRORS, errors);
+            request.setAttribute(ServletConstant.RequestParameterName.ORDER, order);
+            request.getRequestDispatcher(ServletConstant.PagesLocation.CHECKOUT_PAGE).forward(request, response);
         } else {
             orderService.placeOrder(order);
             cartService.destroyCart(request.getSession());
             response.sendRedirect(request.getContextPath() +
                     "/overview/" + order.getId());
-        }
-    }
-
-    private void setRequiredStringParameter(Map<String, String> errors, String parameterName,
-                                            HttpServletRequest request, Consumer<String> consumer) {
-        String parameter = request.getParameter(parameterName);
-        if (Objects.isNull(parameter) || parameter.trim().isEmpty()) {
-            errors.put(parameterName, ERROR_VALUE_IS_REQUIRED);
-        } else {
-            consumer.accept(parameter.trim());
-        }
-    }
-
-    private void setRequiredPhoneParameter(Map<String, String> errors, HttpServletRequest request, Order order) {
-        String parameterName = "phone";
-        String parameter = request.getParameter(parameterName);
-        if (Objects.isNull(parameter) || parameter.trim().isEmpty()) {
-            errors.put(parameterName, ERROR_VALUE_IS_REQUIRED);
-        } else if (parameter.trim().matches(PHONE_REGEX)) {
-            order.setPhone(parameter);
-        } else {
-            errors.put(parameterName, ERROR_INVALID_FORMAT);
-        }
-    }
-
-    private void setRequiredDeliveryDateParameter(Map<String, String> errors, HttpServletRequest request, Order order) {
-        String parameterName = "deliveryDate";
-        String parameter = request.getParameter(parameterName);
-        if (Objects.isNull(parameter) || parameter.trim().isEmpty()) {
-            errors.put(parameterName, ERROR_VALUE_IS_REQUIRED);
-        } else {
-            try {
-                LocalDate deliveryDate = LocalDate.parse(parameter);
-                LocalDate compareDate = LocalDate.now().minusDays(1);
-                if (deliveryDate.isBefore(compareDate)) {
-                    errors.put(parameterName, ERROR_INVALID_DATE);
-                }
-                order.setDeliveryDate(deliveryDate);
-            } catch (DateTimeParseException exception) {
-                errors.put(parameterName, ERROR_INVALID_FORMAT);
-            }
-        }
-    }
-
-    private void setRequiredPaymentMethodParameter(Map<String, String> errors,
-                                                   HttpServletRequest request, Order order) {
-        String parameterName = "paymentMethod";
-        String parameter = request.getParameter(parameterName);
-        if (Objects.isNull(parameter) || parameter.trim().isEmpty()) {
-            errors.put(parameterName, ERROR_VALUE_IS_REQUIRED);
-        } else {
-            PaymentMethod paymentMethod = PaymentMethod.valueOf(parameter);
-            order.setPaymentMethod(paymentMethod);
         }
     }
 }

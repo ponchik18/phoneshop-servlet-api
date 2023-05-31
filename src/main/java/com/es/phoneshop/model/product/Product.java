@@ -1,6 +1,6 @@
 package com.es.phoneshop.model.product;
 
-import com.es.phoneshop.model.IBean;
+import com.es.phoneshop.model.UniqueItem;
 import com.es.phoneshop.model.price.PriceHistory;
 
 import java.io.Serializable;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-public class Product implements Serializable, IBean {
+public class Product implements Serializable, UniqueItem {
     private UUID id;
     private String code;
     private String description;

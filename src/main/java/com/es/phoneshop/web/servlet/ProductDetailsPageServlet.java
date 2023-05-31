@@ -13,6 +13,7 @@ import com.es.phoneshop.service.QuantityRetrieverService;
 import com.es.phoneshop.service.impl.DefaultCartService;
 import com.es.phoneshop.service.impl.DefaultProductsTrackingHistoryService;
 import com.es.phoneshop.service.impl.DefaultQuantityRetrieverService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -62,10 +63,10 @@ public class ProductDetailsPageServlet extends HttpServlet {
         ProductsHistory productHistory = productsTrackingHistory.getProductHistory(request.getSession());
         productsTrackingHistory.addToViewed(productHistory, product, request.getSession().getId());
 
-        request.setAttribute("product", product);
-        request.setAttribute("cart", cartService.getCart(request.getSession()));
-        request.setAttribute("productHistory", productHistory.getProducts());
-        request.getRequestDispatcher("/WEB-INF/pages/productDetails.jsp").forward(request, response);
+        request.setAttribute(ServletConstant.RequestParameterName.PRODUCT, product);
+        request.setAttribute(ServletConstant.RequestParameterName.CART, cartService.getCart(request.getSession()));
+        request.setAttribute(ServletConstant.RequestParameterName.PRODUCT_HISTORY, productHistory.getProducts());
+        request.getRequestDispatcher(ServletConstant.PagesLocation.PRODUCT_DETAIL_PAGE).forward(request, response);
     }
 
     @Override
@@ -83,7 +84,7 @@ public class ProductDetailsPageServlet extends HttpServlet {
 
     private void setErrorAndForward(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws ServletException, IOException {
-        request.setAttribute("error", errorMessage);
+        request.setAttribute(ServletConstant.RequestParameterName.ERROR, errorMessage);
         doGet(request, response);
     }
 
@@ -98,10 +99,12 @@ public class ProductDetailsPageServlet extends HttpServlet {
         int quantity;
 
         try {
-            quantity = quantityRetrieverService.getProductQuantity(request.getParameter("quantity"),
-                    request.getLocale());
+            quantity = quantityRetrieverService.getProductQuantity(
+                    request.getParameter(ServletConstant.RequestParameterName.QUANTITY),
+                    request.getLocale()
+            );
         } catch (ParseException exception) {
-            setErrorAndForward(request, response, "Not a number");
+            setErrorAndForward(request, response, ServletConstant.Message.ERROR_NOT_A_NUMBER);
             return false;
         } catch (FractionalNumberException | NegativeNumberException exception) {
             setErrorAndForward(request, response, exception.getMessage());

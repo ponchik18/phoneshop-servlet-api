@@ -5,6 +5,7 @@ import com.es.phoneshop.exception.NoSuchElementException;
 import com.es.phoneshop.exception.OutOfStockException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.impl.DefaultCartService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -67,7 +68,7 @@ public class ProductDetailsPageServletTest {
         servlet.doGet(request, response);
 
         verify(requestDispatcher).forward(request, response);
-        verify(request).setAttribute(eq("product"), eq(product));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.PRODUCT), eq(product));
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -82,7 +83,8 @@ public class ProductDetailsPageServletTest {
     public void testDoPostSuccess() throws ServletException, IOException, OutOfStockException {
         int initialQuantity = 5;
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(initialQuantity));
+        when(request.getParameter(ServletConstant.RequestParameterName.QUANTITY))
+                .thenReturn(String.valueOf(initialQuantity));
 
         servlet.doPost(request, response);
 
@@ -91,17 +93,20 @@ public class ProductDetailsPageServletTest {
                 "/products/" +
                 productId +
                 "?message=Product added to cart successfully");
-        verify(request, never()).setAttribute(eq("error"), any());
+        verify(request, never()).setAttribute(eq(ServletConstant.RequestParameterName.ERROR), any());
     }
 
     @Test
     public void testDoPostInvalidQuantity() throws ServletException, IOException, OutOfStockException {
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(request.getParameter("quantity")).thenReturn("qwer");
+        when(request.getParameter(ServletConstant.RequestParameterName.QUANTITY)).thenReturn("qwer");
 
         servlet.doPost(request, response);
 
-        verify(request).setAttribute("error", "Not a number");
+        verify(request).setAttribute(
+                ServletConstant.RequestParameterName.ERROR,
+                ServletConstant.Message.ERROR_NOT_A_NUMBER
+        );
     }
 
 }
