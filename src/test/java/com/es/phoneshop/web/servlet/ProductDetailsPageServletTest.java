@@ -1,10 +1,11 @@
 package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.dao.impl.ArrayListProductDao;
+import com.es.phoneshop.exception.NoSuchElementException;
 import com.es.phoneshop.exception.OutOfStockException;
-import com.es.phoneshop.exception.ProductNotFoundException;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.impl.DefaultCartService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -19,6 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,8 +28,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductDetailsPageServletTest {
-    private static final Long invalidProductId = -45L;
-    private static final Long productId = 1L;
+    private static final UUID invalidProductId = UUID.randomUUID();
+    private static final UUID productId = UUID.randomUUID();
     private final ProductDetailsPageServlet servlet = new ProductDetailsPageServlet();
     @Mock
     private HttpServletRequest request;
@@ -61,18 +63,18 @@ public class ProductDetailsPageServletTest {
     public void testDoGetValidProductNumber() throws ServletException, IOException {
         Product product = new Product();
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(productDao.getProduct(productId)).thenReturn(product);
+        when(productDao.getItem(productId)).thenReturn(product);
 
         servlet.doGet(request, response);
 
         verify(requestDispatcher).forward(request, response);
-        verify(request).setAttribute(eq("product"), eq(product));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.PRODUCT), eq(product));
     }
 
-    @Test(expected = ProductNotFoundException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testDoGetInvalidProductNumber() throws ServletException, IOException {
         when(request.getPathInfo()).thenReturn("/" + invalidProductId);
-        when(productDao.getProduct(invalidProductId)).thenThrow(new ProductNotFoundException(invalidProductId));
+        when(productDao.getItem(invalidProductId)).thenThrow(new NoSuchElementException(invalidProductId));
 
         servlet.doGet(request, response);
     }
@@ -81,7 +83,8 @@ public class ProductDetailsPageServletTest {
     public void testDoPostSuccess() throws ServletException, IOException, OutOfStockException {
         int initialQuantity = 5;
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(initialQuantity));
+        when(request.getParameter(ServletConstant.RequestParameterName.QUANTITY))
+                .thenReturn(String.valueOf(initialQuantity));
 
         servlet.doPost(request, response);
 
@@ -90,17 +93,20 @@ public class ProductDetailsPageServletTest {
                 "/products/" +
                 productId +
                 "?message=Product added to cart successfully");
-        verify(request, never()).setAttribute(eq("error"), any());
+        verify(request, never()).setAttribute(eq(ServletConstant.RequestParameterName.ERROR), any());
     }
 
     @Test
     public void testDoPostInvalidQuantity() throws ServletException, IOException, OutOfStockException {
         when(request.getPathInfo()).thenReturn("/" + productId);
-        when(request.getParameter("quantity")).thenReturn("qwer");
+        when(request.getParameter(ServletConstant.RequestParameterName.QUANTITY)).thenReturn("qwer");
 
         servlet.doPost(request, response);
 
-        verify(request).setAttribute("error", "Not a number");
+        verify(request).setAttribute(
+                ServletConstant.RequestParameterName.ERROR,
+                ServletConstant.Message.ERROR_NOT_A_NUMBER
+        );
     }
 
 }

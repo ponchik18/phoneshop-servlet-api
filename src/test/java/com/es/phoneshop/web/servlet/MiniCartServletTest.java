@@ -2,6 +2,7 @@ package com.es.phoneshop.web.servlet;
 
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.service.CartService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -58,7 +59,7 @@ public class MiniCartServletTest {
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("cart"), eq(cart));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.CART), eq(cart));
         verify(requestDispatcher).include(request, response);
     }
 

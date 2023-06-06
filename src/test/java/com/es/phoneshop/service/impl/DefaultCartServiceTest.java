@@ -1,8 +1,9 @@
 package com.es.phoneshop.service.impl;
 
+import com.es.phoneshop.dao.OrderDao;
 import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.exception.NoSuchElementException;
 import com.es.phoneshop.exception.OutOfStockException;
-import com.es.phoneshop.exception.ProductNotFoundException;
 import com.es.phoneshop.model.cart.Cart;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.CartService;
@@ -16,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,10 +41,10 @@ public class DefaultCartServiceTest {
     @Before
     public void setup() throws NoSuchFieldException, IllegalAccessException {
         testProduct = new Product("test", "Test Product", new BigDecimal(100), Currency.getInstance("USD"), MAX_STOCK, "https://example.com/test.jpg", null);
-        testProduct.setId(1L);
+        testProduct.setId(UUID.randomUUID());
         cartService = DefaultCartService.getInstance();
 
-        when(productDao.getProduct(any())).thenReturn(testProduct);
+        when(productDao.getItem(any())).thenReturn(testProduct);
 
         Field productDaoField = cartService.getClass().getDeclaredField("productDao");
         productDaoField.setAccessible(true);
@@ -73,7 +75,7 @@ public class DefaultCartServiceTest {
         Cart cart = new Cart();
         int quantity = MAX_STOCK / 2;
 
-        cartService.add(cart, 1L, quantity);
+        cartService.add(cart, UUID.randomUUID(), quantity);
 
         assertEquals(testProduct.getPrice().multiply(BigDecimal.valueOf(quantity)), cart.getTotalCost());
         assertEquals(quantity, cart.getTotalQuantity());
@@ -84,16 +86,17 @@ public class DefaultCartServiceTest {
         Cart cart = new Cart();
         int quantity = MAX_STOCK * 2;
 
-        cartService.add(cart, 1L, quantity);
+        cartService.add(cart, UUID.randomUUID(), quantity);
     }
 
     @Test
     public void testAddToExistingCart() throws OutOfStockException {
         Cart cart = new Cart();
         int quantity = MAX_STOCK / 3; //3
-        cartService.add(cart, 1L, quantity);
+        UUID productId = UUID.randomUUID();
+        cartService.add(cart, productId, quantity);
 
-        cartService.add(cart, 1L, 1);
+        cartService.add(cart, productId, 1);
         quantity++;
 
         assertEquals(testProduct.getPrice().multiply(BigDecimal.valueOf(quantity)), cart.getTotalCost());
@@ -103,7 +106,7 @@ public class DefaultCartServiceTest {
     @Test(expected = OutOfStockException.class)
     public void testAddToExistingCartWithInvalidQuantity() throws OutOfStockException {
         Cart cart = new Cart();
-        Long productId = testProduct.getId();
+        UUID productId = testProduct.getId();
         cartService.add(cart, productId, MAX_STOCK);
 
         cartService.add(cart, productId, 1);
@@ -112,7 +115,7 @@ public class DefaultCartServiceTest {
     @Test
     public void testUpdateCart() throws OutOfStockException {
         Cart cart = new Cart();
-        Long productId = testProduct.getId();
+        UUID productId = testProduct.getId();
         int quantity = MAX_STOCK / 2;
         cartService.add(cart, productId, 2);
 
@@ -122,10 +125,10 @@ public class DefaultCartServiceTest {
         assertEquals(quantity, cart.getTotalQuantity());
     }
 
-    @Test(expected = ProductNotFoundException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testUpdateCartNonExistentCartItem() throws OutOfStockException {
         Cart cart = new Cart();
-        Long productId = testProduct.getId();
+        UUID productId = testProduct.getId();
         int quantity = MAX_STOCK / 2;
 
         cartService.update(cart, productId, quantity);
@@ -135,7 +138,7 @@ public class DefaultCartServiceTest {
     public void testDeleteCartItem() throws OutOfStockException {
         Cart cart = new Cart();
         productDao.save(testProduct);
-        Long productId = testProduct.getId();
+        UUID productId = testProduct.getId();
         int quantity = MAX_STOCK / 2;
         cartService.add(cart, productId, MAX_STOCK);
 

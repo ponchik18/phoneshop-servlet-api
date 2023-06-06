@@ -1,5 +1,6 @@
 package com.es.phoneshop.model.product;
 
+import com.es.phoneshop.model.UniqueItem;
 import com.es.phoneshop.model.price.PriceHistory;
 
 import java.io.Serializable;
@@ -8,8 +9,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-public class Product implements Serializable {
-    private Long id;
+public class Product implements Serializable, UniqueItem {
+    private UUID id;
     private String code;
     private String description;
     /**
@@ -43,11 +44,17 @@ public class Product implements Serializable {
         return priceHistories;
     }
 
-    public Long getId() {
+    public void setPriceHistories(List<PriceHistory> priceHistories) {
+        this.priceHistories = priceHistories;
+    }
+
+    @Override
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    @Override
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -75,7 +82,7 @@ public class Product implements Serializable {
         priceHistories.add(new PriceHistory(Date.from(LocalDate
                 .now()
                 .atStartOfDay(ZoneId.systemDefault())
-                .toInstant()),price));
+                .toInstant()), price));
 
         this.price = price;
     }
@@ -102,10 +109,6 @@ public class Product implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public void setPriceHistories(List<PriceHistory> priceHistories) {
-        this.priceHistories = priceHistories;
     }
 
     @Override

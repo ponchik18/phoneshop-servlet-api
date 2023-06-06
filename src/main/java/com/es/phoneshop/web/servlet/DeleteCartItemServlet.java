@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class DeleteCartItemServlet extends HttpServlet {
 
@@ -26,8 +27,9 @@ public class DeleteCartItemServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long productId = Long.parseLong(request.getPathInfo().substring(1));
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        UUID productId = UUID.fromString(request.getPathInfo().substring(1));
         Cart cart = cartService.getCart(request.getSession());
         cartService.delete(cart, productId);
         response.sendRedirect(request.getContextPath() + "/cart?message=Cart item removed successfully");

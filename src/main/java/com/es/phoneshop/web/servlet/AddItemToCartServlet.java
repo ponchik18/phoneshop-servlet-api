@@ -8,6 +8,7 @@ import com.es.phoneshop.service.CartService;
 import com.es.phoneshop.service.QuantityRetrieverService;
 import com.es.phoneshop.service.impl.DefaultCartService;
 import com.es.phoneshop.service.impl.DefaultQuantityRetrieverService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.UUID;
 
 public class AddItemToCartServlet extends HttpServlet {
 
@@ -39,11 +41,12 @@ public class AddItemToCartServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Long productId = Long.parseLong(request.getPathInfo().substring(1));
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        UUID productId = UUID.fromString(request.getPathInfo().substring(1));
         if (isSuccessfullyAddedToCart(request, response, productId)) {
-            String sort = request.getParameter("sort");
-            String order = request.getParameter("order");
+            String sort = request.getParameter(ServletConstant.RequestParameterName.SORT);
+            String order = request.getParameter(ServletConstant.RequestParameterName.ORDER);
             String redirectLink = request.getContextPath() +
                     "/products" +
                     "?message=Product added to cart successfully&" +
@@ -56,12 +59,13 @@ public class AddItemToCartServlet extends HttpServlet {
         }
     }
 
-    private void setErrorAndRedirect(HttpServletRequest request, HttpServletResponse response, Long productId, String errorMessage)
+    private void setErrorAndRedirect(HttpServletRequest request, HttpServletResponse response,
+                                     UUID productId, String errorMessage)
             throws ServletException, IOException {
-        request.setAttribute("productIdWithError", productId);
-        request.setAttribute("error", errorMessage);
-        String sort = request.getParameter("sort");
-        String order = request.getParameter("order");
+        request.setAttribute(ServletConstant.RequestParameterName.PRODUCT_ID_WITH_ERROR, productId);
+        request.setAttribute(ServletConstant.RequestParameterName.ERROR, errorMessage);
+        String sort = request.getParameter(ServletConstant.RequestParameterName.SORT);
+        String order = request.getParameter(ServletConstant.RequestParameterName.ORDER);
         String redirectLink = request.getContextPath() +
                 "/products" +
                 "?productIdWithError=" +
@@ -74,14 +78,17 @@ public class AddItemToCartServlet extends HttpServlet {
         response.sendRedirect(redirectLink);
     }
 
-    private boolean isSuccessfullyAddedToCart(HttpServletRequest request, HttpServletResponse response, Long productId)
+    private boolean isSuccessfullyAddedToCart(HttpServletRequest request, HttpServletResponse response, UUID productId)
             throws ServletException, IOException {
         int quantity;
 
         try {
-            quantity = quantityRetrieverService.getProductQuantity(request.getParameter("quantity"), request.getLocale());
+            quantity = quantityRetrieverService.getProductQuantity(
+                    request.getParameter(ServletConstant.RequestParameterName.QUANTITY),
+                    request.getLocale()
+            );
         } catch (ParseException exception) {
-            setErrorAndRedirect(request, response, productId, "Not a number");
+            setErrorAndRedirect(request, response, productId, ServletConstant.Message.ERROR_NOT_A_NUMBER);
             return false;
         } catch (FractionalNumberException | NegativeNumberException exception) {
             setErrorAndRedirect(request, response, productId, exception.getMessage());
@@ -99,7 +106,7 @@ public class AddItemToCartServlet extends HttpServlet {
         return true;
     }
 
-    private void addToCart(HttpServletRequest request, HttpServletResponse response, Long productId, int quantity)
+    private void addToCart(HttpServletRequest request, HttpServletResponse response, UUID productId, int quantity)
             throws OutOfStockException {
         Cart cart = cartService.getCart(request.getSession());
         cartService.add(cart, productId, quantity);

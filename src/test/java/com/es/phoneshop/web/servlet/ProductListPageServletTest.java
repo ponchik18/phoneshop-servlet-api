@@ -4,6 +4,7 @@ import com.es.phoneshop.dao.impl.ArrayListProductDao;
 import com.es.phoneshop.model.history.ProductsHistory;
 import com.es.phoneshop.model.product.Product;
 import com.es.phoneshop.service.ProductsTrackingHistoryService;
+import com.es.phoneshop.web.constant.ServletConstant;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -54,7 +55,9 @@ public class ProductListPageServletTest {
         products.add(new Product("iphone14", "IPhone 14", new BigDecimal(256), Currency.getInstance("USD"), 100, "urlForImage", null));
 
         when(request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-        when(productDao.findProducts(request.getParameter("search"), null, null)).thenReturn(products);
+        when(productDao.findProducts(
+                request.getParameter(ServletConstant.RequestParameterName.SEARCH), null, null))
+                .thenReturn(products);
     }
 
     @Test
@@ -63,8 +66,11 @@ public class ProductListPageServletTest {
 
         servlet.doGet(request, response);
 
-        verify(request).setAttribute(eq("productHistory"), eq(productHistory.getProducts()));
+        verify(request).setAttribute(
+                eq(ServletConstant.RequestParameterName.PRODUCT_HISTORY),
+                eq(productHistory.getProducts())
+        );
         verify(requestDispatcher).forward(request, response);
-        verify(request).setAttribute(eq("products"), eq(products));
+        verify(request).setAttribute(eq(ServletConstant.RequestParameterName.PRODUCTS), eq(products));
     }
 }

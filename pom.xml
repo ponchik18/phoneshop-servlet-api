@@ -70,6 +70,7 @@
           <webApp>
             <contextPath>/phoneshop</contextPath>
           </webApp>
+<!--          <contextXml>src/main/resources/jetty.xml</contextXml>-->
         </configuration>
       </plugin>
       <plugin>

@@ -18,13 +18,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AddItemToCartServletTest {
-    private static final Long productId = 1L;
+    private static final UUID productId = UUID.randomUUID();
     private final AddItemToCartServlet servlet = new AddItemToCartServlet();
     @Mock
     private HttpServletRequest request;
