@@ -8,6 +8,7 @@ public interface ServletConstant {
         String CART_PAGE = "/WEB-INF/pages/cart.jsp";
         String CHECKOUT_PAGE = "/WEB-INF/pages/checkout.jsp";
         String OVERVIEW_PAGE = "/WEB-INF/pages/orderOverview.jsp";
+        String ADVANCED_SEARCH_PAGE = "/WEB-INF/pages/advancedSearch.jsp";
     }
 
     interface RequestParameterName {
@@ -30,6 +31,11 @@ public interface ServletConstant {
         String PRODUCT_HISTORY = "productHistory";
         String PRODUCT_ID_WITH_ERROR = "productIdWithError";
         String SEARCH = "search";
+        String DESCRIPTION = "description";
+        String INCLUDE_TYPE = "include_type";
+        String MIN_PRICE = "min_price";
+        String MAX_PRICE = "max_price";
+
     }
 
     interface Message {

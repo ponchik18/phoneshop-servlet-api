@@ -1,12 +1,13 @@
 package com.es.phoneshop.dao.impl;
 
 import com.es.phoneshop.dao.ProductDao;
+import com.es.phoneshop.dto.IncludeType;
 import com.es.phoneshop.dto.SortField;
 import com.es.phoneshop.dto.SortOrder;
-import com.es.phoneshop.exception.NoSuchProductException;
 import com.es.phoneshop.model.product.Product;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,12 +32,52 @@ public class ArrayListProductDao extends GenericArrayListDao<Product> implements
 
 
     @Override
+    public List<Product> advancedSearchProducts(String description, IncludeType includeType,
+                                                BigDecimal minPrice, BigDecimal maxPrice) {
+        lock.readLock().lock();
+        try {
+            return items.stream()
+                    .filter(product -> product.getPrice() != null)
+                    .filter(product -> product.getStock() > 0)
+                    .filter(product -> {
+                        if (Objects.isNull(description)) {
+                            return false;
+                        } else if (includeType == IncludeType.ALL_WORDS) {
+                            return product.getDescription().toLowerCase().contains(description.toLowerCase());
+                        } else if (includeType == IncludeType.ANY_WORDS) {
+                            String[] searchWords = description.split(" ");
+                            return containsAnyWord(product.getDescription(), searchWords);
+                        } else {
+                            return true;
+                        }
+                    })
+                    .filter(product -> {
+                        if (!Objects.isNull(minPrice)) {
+                            return product.getPrice().compareTo(minPrice) > 0;
+                        } else {
+                            return true;
+                        }
+                    })
+                    .filter(product -> {
+                        if (!Objects.isNull(maxPrice)) {
+                            return product.getPrice().compareTo(maxPrice) < 0;
+                        } else {
+                            return true;
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
     public List<Product> findProducts(String search, SortField field, SortOrder order) {
         lock.readLock().lock();
         try {
 
             String[] searchWords = Optional.ofNullable(search).orElse(StringUtils.EMPTY).trim().split(" ");
-            Comparator<Product> comparator = createComparator(field, order, searchWords);
+            Comparator<Product> comparator = createFindComparator(field, order, searchWords);
             return items.stream()
                     .filter(product -> product.getPrice() != null)
                     .filter(product -> product.getStock() > 0)
@@ -47,8 +88,6 @@ public class ArrayListProductDao extends GenericArrayListDao<Product> implements
             lock.readLock().unlock();
         }
     }
-
-
 
     private boolean containsAnyWord(String productDescription, String[] searchWords) {
         return Arrays.stream(searchWords)
@@ -65,7 +104,7 @@ public class ArrayListProductDao extends GenericArrayListDao<Product> implements
         return searchWord.toLowerCase().contains(searchStr.toLowerCase());
     }
 
-    private Comparator<Product> createComparator(SortField field, SortOrder order, String[] searchWords) {
+    private Comparator<Product> createFindComparator(SortField field, SortOrder order, String[] searchWords) {
         Comparator<Product> comparator = Comparator.comparing(p -> countOfMatch(p.getDescription(), searchWords));
         comparator = comparator.reversed();
         if (SortField.description == field) {

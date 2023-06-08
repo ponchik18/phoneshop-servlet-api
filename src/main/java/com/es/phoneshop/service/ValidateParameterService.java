@@ -6,6 +6,7 @@ import com.es.phoneshop.model.order.Order;
 import com.es.phoneshop.model.order.PaymentMethod;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Locale;
@@ -20,4 +21,7 @@ public interface ValidateParameterService {
                                           Consumer<LocalDate> consumer);
     void setRequiredPaymentMethodParameter(Map<String, String> errors,
                                            HttpServletRequest request, Consumer<PaymentMethod> consumer);
+
+    BigDecimal validatePrice(Map<String, String> errors, String price, String parameterName);
+
 }
